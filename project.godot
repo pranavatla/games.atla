@@ -1,0 +1,7 @@
+[application]
+config/name="games.atla"
+run/main_scene="res://scenes/main.tscn"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+
