@@ -27,9 +27,9 @@ jobs:
             --content-type "text/html" \
             --cache-control "public, max-age=60"
 
-      - name: Deploy Glitch game
+      - name: Deploy Drop game
         run: |
-          aws s3 sync deploy/web/ s3://${{ secrets.S3_BUCKET }}/glitch/ \
+          aws s3 sync deploy/drop/ s3://${{ secrets.S3_BUCKET }}/drop/ \
             --delete \
             --content-type "text/html" \
             --cache-control "public, max-age=60"
