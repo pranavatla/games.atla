@@ -20,6 +20,7 @@ var player_pos := Vector2i.ZERO
 var goal_pos := Vector2i(GRID_SIZE - 1, GRID_SIZE - 1)
 var lie_rule_index := 0
 var lie_type_name := "Horizontal inversion"
+var move_log: PackedStringArray = []
 var moves := 0
 var lie_caught := false
 var puzzle_complete := false
@@ -68,6 +69,7 @@ func _new_puzzle() -> void:
 	lie_caught = false
 	puzzle_complete = false
 	glitch_flash = 0
+	move_log = []
 	info_label.text = "Probe the board. One rule lies."
 
 
@@ -121,11 +123,18 @@ func _handle_swipe(from_pos: Vector2, to_pos: Vector2) -> void:
 
 	moves += 1
 	var moved := _apply_rule(direction)
+	var direction_name := _direction_name(direction)
 	if moved:
+		move_log.push_back("%s -> %s" % [direction_name, player_pos])
+		if move_log.size() > 3:
+			move_log.pop_front()
 		lie_caught = lie_caught or direction_index(direction) == lie_rule_index
 		if player_pos == goal_pos:
 			_finish_puzzle()
 	else:
+		move_log.push_back("%s -> blocked" % direction_name)
+		if move_log.size() > 3:
+			move_log.pop_front()
 		info_label.text = "No move happened. That itself is a clue."
 
 	_refresh_ui()
@@ -166,6 +175,16 @@ func direction_index(direction: Vector2i) -> int:
 	return 3
 
 
+func _direction_name(direction: Vector2i) -> String:
+	if direction == Vector2i(0, -1):
+		return "Up"
+	if direction == Vector2i(0, 1):
+		return "Down"
+	if direction == Vector2i(-1, 0):
+		return "Left"
+	return "Right"
+
+
 func _finish_puzzle() -> void:
 	puzzle_complete = true
 	var caught_text := lie_caught ? "You caught the lie." : "You solved it without proving the lie."
@@ -181,7 +200,9 @@ func _refresh_ui() -> void:
 		"yes" if lie_caught else "no",
 		"%d,%d" % [goal_pos.x + 1, goal_pos.y + 1]
 	]
+	var log_text := "Recent: " + (", ".join(move_log) if move_log.size() > 0 else "none yet")
 	lie_state_label.text = puzzle_complete ? "Lie revealed: %s" % MOVE_RULES[lie_rule_index] : "Lie hidden: observe board behavior to expose it."
+	info_label.text += "\n\n%s" % log_text
 	_draw_board()
 
 
