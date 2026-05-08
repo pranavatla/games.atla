@@ -152,34 +152,71 @@
       white-space: nowrap;
     }
 
-    /* ── Tagline ── */
-    .tagline {
-      margin-bottom: clamp(2.5rem, 5vw, 4rem);
-      max-width: 68ch;
-    }
-    .tagline p {
-      font-size: 0.55rem;
-      line-height: 2.2;
+    /* ── Sub-headline ── */
+    .sub-headline {
+      margin-top: 1.5rem;
+      max-width: 60ch;
+      font-size: 0.48rem;
+      line-height: 2.4;
       color: var(--color-blue);
       text-shadow: var(--neon-glow) var(--color-blue);
+    }
+
+    /* ── Vision block ── */
+    .vision {
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+      padding: 1.75rem;
+      border-radius: 0.5rem;
+      border: var(--pixel-border) var(--color-purple);
+      background: linear-gradient(135deg, rgba(155,89,182,0.07) 0%, rgba(0,191,255,0.04) 100%);
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.3), 0 0 20px rgba(155,89,182,0.12);
+    }
+    .vision h2 {
+      font-size: clamp(0.85rem, 2.5vw, 1.4rem);
+      color: var(--color-purple);
+      text-shadow: var(--neon-glow) var(--color-purple), 0 0 24px var(--color-purple);
       margin-bottom: 1rem;
+      line-height: 1.4;
     }
-    .tagline .contrib {
+    .vision .v-body {
+      font-size: 0.48rem;
+      line-height: 2.4;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+    .vision ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .vision ul li {
+      font-size: 0.42rem;
+      line-height: 2;
       color: var(--muted);
-      text-shadow: none;
-      font-size: 0.5rem;
+      padding-left: 1rem;
+      position: relative;
     }
-    .tagline .contrib a {
+    .vision ul li::before {
+      content: '▸';
+      position: absolute;
+      left: 0;
+      color: var(--color-neon-2);
+      text-shadow: var(--neon-glow) var(--color-neon-2);
+    }
+    .vision ul li a {
       color: var(--color-bubblegum);
       text-shadow: var(--neon-glow) var(--color-bubblegum);
       text-decoration: none;
-      border-bottom: 2px solid var(--color-bubblegum);
+      border-bottom: 1px solid var(--color-bubblegum);
     }
-    .tagline .contrib a:hover {
+    .vision ul li a:hover {
       color: var(--color-neon-1);
-      text-shadow: var(--neon-glow) var(--color-neon-1);
       border-color: var(--color-neon-1);
     }
+
+    /* ── Tagline (legacy keep for nothing now — replaced by vision) ── */
+    .tagline { display: none; }
 
     /* ── Section label ── */
     .section-label {
@@ -377,9 +414,49 @@
       line-height: 2;
     }
 
+    /* ── AI-proof badge on tile ── */
+    .ai-badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.32rem;
+      letter-spacing: 0.1em;
+      color: var(--color-green);
+      text-shadow: 0 0 6px var(--color-green);
+      border: 1px solid rgba(0,255,65,0.35);
+      padding: 2px 7px;
+      border-radius: 0.25rem;
+      text-transform: uppercase;
+    }
+
+    /* ── AI Frontier section ── */
+    .frontier {
+      margin-top: clamp(3rem, 6vw, 5rem);
+      padding: 2rem 1.75rem;
+      border-radius: 0.5rem;
+      border: var(--pixel-border) var(--color-neon-1);
+      background: linear-gradient(135deg, rgba(255,105,180,0.06) 0%, rgba(155,89,182,0.05) 100%);
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.3), 0 0 20px rgba(255,105,180,0.12);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .frontier h2 {
+      font-size: clamp(0.8rem, 2vw, 1.2rem);
+      color: var(--color-neon-1);
+      text-shadow: var(--neon-glow) var(--color-neon-1), 0 0 24px var(--color-neon-1);
+      margin-bottom: 0.9rem;
+      line-height: 1.4;
+    }
+    .frontier .f-body {
+      font-size: 0.44rem;
+      line-height: 2.4;
+      color: var(--muted);
+    }
+
     /* ── AI strip ── */
     .ai-strip {
-      margin-top: clamp(3rem, 6vw, 5rem);
+      margin-top: 1.25rem;
       padding: 1.5rem 1.75rem;
       border-radius: 0.5rem;
       border: var(--pixel-border) var(--color-purple);
@@ -455,6 +532,7 @@
       .hero { grid-template-columns: 1fr; }
       .hero-badge { flex-direction: row; align-items: center; }
       .ai-strip { grid-template-columns: 1fr; }
+      .frontier { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -468,21 +546,26 @@
   <div class="hero">
     <div>
       <h1>
-        <span class="line1">One game.</span>
-        <span class="line2">One click to play.</span>
+        <span class="line1">One prompt.</span>
+        <span class="line2">One click. Zero friction.</span>
       </h1>
+      <p class="sub-headline">
+        I build experimental games with AI as my co-pilot&#x2014;turning 3&nbsp;AM ideas into playable reality.<br>
+        No tutorials, no complexity, just pure flow.
+      </p>
     </div>
   </div>
 
-  <!-- tagline -->
-  <div class="tagline">
-    <p>Building games with AI as co-pilot — one weird idea at a time.<br>
-    Every puzzle here started as a 3am prompt and ended up playable.</p>
-    <p class="contrib">
-      Got a game idea? Got code?&nbsp;
-      <a href="https://github.com/pranavatla/games.atla" target="_blank" rel="noopener">Open a PR or drop an issue</a>
-      &nbsp;&#x2014; the machine and I review everything.
-    </p>
+  <!-- vision block -->
+  <div class="vision">
+    <h2>AI-Native Arcade.</h2>
+    <p class="v-body">Every game here is a collaboration between human intuition and machine code.<br>
+    Built for the restless, the bored, and the curious.</p>
+    <ul>
+      <li><strong style="color:var(--text)">Simple:</strong> Playable with one hand.</li>
+      <li><strong style="color:var(--text)">Fast:</strong> No installs, just the web.</li>
+      <li><strong style="color:var(--text)">Open:</strong> Have a 3&nbsp;AM idea?&nbsp;<a href="https://github.com/pranavatla/games.atla" target="_blank" rel="noopener">Open a PR or drop an issue.</a> The machine and I are listening.</li>
+    </ul>
   </div>
 
   <!-- game grid -->
@@ -499,10 +582,11 @@
         <span class="stat-badge green">Live</span>
       </div>
       <p class="t-desc">
-        A 4x4 grid where one movement rule always lies.<br>
-        Swipe, catch the lie, reach the goal.
+        A 4x4 grid where logic is broken. One rule is a lie.<br>
+        Can you spot the ghost in the machine?
       </p>
-      <span class="pixel-btn">PLAY NOW</span>
+      <div class="ai-badge">&#9670; Built with Claude Sonnet</div>
+      <span class="pixel-btn" style="margin-top:1rem;">PLAY NOW</span>
     </a>
 
     <!-- Invaders tile -->
@@ -515,10 +599,11 @@
         <span class="stat-badge green">Live</span>
       </div>
       <p class="t-desc">
-        Classic space shooter — 55 aliens, 4 shields,<br>
-        a mystery ship and waves that never stop.
+        The classic, evolved. 55 aliens, infinite waves,<br>
+        one goal: survive the neon storm.
       </p>
-      <span class="pixel-btn" style="background:var(--color-blue);border-color:var(--color-blue);">PLAY NOW</span>
+      <div class="ai-badge">&#9670; Built with Claude Sonnet</div>
+      <span class="pixel-btn" style="margin-top:1rem;background:var(--color-blue);border-color:var(--color-blue);">PLAY NOW</span>
     </a>
 
     <!-- Break tile -->
@@ -534,7 +619,8 @@
         10 levels of neon bricks, 4 power-ups,<br>
         combo multiplier. Don't drop the ball.
       </p>
-      <span class="pixel-btn" style="background:var(--color-neon-2);border-color:var(--color-neon-2);">PLAY NOW</span>
+      <div class="ai-badge">&#9670; Built with Claude Sonnet</div>
+      <span class="pixel-btn" style="margin-top:1rem;background:var(--color-neon-2);border-color:var(--color-neon-2);">PLAY NOW</span>
     </a>
 
     <!-- Game #4 incoming tile -->
@@ -551,17 +637,31 @@
 
   </div>
 
+  <!-- AI Frontier section -->
+  <div class="frontier">
+    <div>
+      <h2>The AI Frontier.</h2>
+      <p class="f-body">
+        This is more than an arcade; it&#x2019;s a sandbox for AI-driven development.<br>
+        I&#x2019;m pushing the boundaries of how we build, play, and iterate in the age of intelligence.
+      </p>
+    </div>
+    <a class="pixel-btn-ghost" href="https://github.com/pranavatla/games.atla" target="_blank" rel="noopener">
+      CONTRIBUTE
+    </a>
+  </div>
+
   <!-- AI strip -->
   <div class="ai-strip">
     <div class="ai-text">
       <strong>Built with AI. Open to contributors.</strong>
       <span class="sub">
-        This whole arcade &#x2014; design, code, game logic &#x2014; is human-directed, AI-accelerated.<br>
-        If you want to ship a game here, fork the repo and make something weird.
+        Design, code, game logic &#x2014; all human-directed, AI-accelerated.<br>
+        Fork the repo, make something weird, ship it here.
       </span>
     </div>
-    <a class="pixel-btn-ghost" href="https://github.com/pranavatla/games.atla" target="_blank" rel="noopener">
-      CONTRIBUTE
+    <a class="pixel-btn-ghost" href="https://github.com/pranavatla/games.atla/issues" target="_blank" rel="noopener">
+      SUGGEST A GAME
     </a>
   </div>
 
