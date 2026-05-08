@@ -7,3 +7,8 @@ Current focus:
 - web export path
 - tile-based launcher entry from `atla.in`
 
+## Web Export Workflow
+
+1. Install Godot 4.6 locally.
+2. Run `scripts/export_web.sh` from the repo root.
+3. Serve `deploy/` or `deploy/web/` from the `games.atla.in` host.

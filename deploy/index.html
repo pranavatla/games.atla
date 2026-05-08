@@ -59,6 +59,13 @@
         border: 1px solid var(--line);
         background: var(--panel);
         box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+        transform: translateY(0);
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(103, 195, 255, 0.36);
+        box-shadow: 0 28px 72px rgba(0, 0, 0, 0.42);
       }
       .tile {
         display: block;
@@ -68,6 +75,13 @@
         background: linear-gradient(180deg, rgba(103, 195, 255, 0.10), rgba(255, 154, 87, 0.06));
         color: var(--text);
         text-decoration: none;
+        min-height: 220px;
+        transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
+      }
+      .tile:hover {
+        transform: translateY(-2px);
+        border-color: rgba(103, 195, 255, 0.30);
+        background: linear-gradient(180deg, rgba(103, 195, 255, 0.15), rgba(255, 154, 87, 0.08));
       }
       .tile small {
         color: var(--muted);
@@ -79,6 +93,16 @@
         font-size: 32px;
       }
       .tile p { font-size: 15px; }
+      .tile .launch {
+        display: inline-flex;
+        margin-top: 18px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(103, 195, 255, 0.16);
+        color: #def1ff;
+        font-size: 13px;
+        font-weight: 700;
+      }
       .meta {
         display: grid;
         grid-template-columns: 1fr;
@@ -126,6 +150,7 @@
           <small>Featured Game</small>
           <h2>Glitch</h2>
           <p>A one-handed logic puzzle where one movement rule always lies.</p>
+          <span class="launch">Click to launch</span>
         </a>
         <aside class="meta">
           <div class="stat"><span>Platform</span><strong>Web + mobile</strong></div>
