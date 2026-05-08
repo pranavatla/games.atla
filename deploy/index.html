@@ -8,12 +8,11 @@
       :root {
         color-scheme: dark;
         --bg: #07090d;
-        --panel: rgba(16, 19, 26, 0.92);
-        --line: rgba(140, 170, 220, 0.2);
-        --text: #eef3fb;
-        --muted: #98a7bf;
-        --accent: #66c2ff;
-        --accent-2: #ff9a57;
+        --panel: rgba(15, 18, 24, 0.94);
+        --line: rgba(140, 170, 220, 0.18);
+        --text: #edf3fb;
+        --muted: #97a6bc;
+        --accent: #67c3ff;
       }
       * { box-sizing: border-box; }
       body {
@@ -22,88 +21,120 @@
         font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         color: var(--text);
         background:
-          radial-gradient(circle at top left, rgba(102, 194, 255, 0.16), transparent 32%),
-          radial-gradient(circle at bottom right, rgba(255, 154, 87, 0.12), transparent 28%),
+          radial-gradient(circle at top left, rgba(103, 195, 255, 0.15), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(255, 154, 87, 0.10), transparent 24%),
           linear-gradient(180deg, #0b0f16 0%, #07090d 100%);
       }
-      .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 48px; }
-      .hero {
+      main {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 36px 20px 44px;
+      }
+      .eyebrow {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        font-size: 12px;
+      }
+      h1 {
+        margin: 12px 0 12px;
+        font-size: clamp(44px, 8vw, 84px);
+        line-height: 0.92;
+      }
+      p {
+        margin: 0;
+        color: #c9d5e5;
+        line-height: 1.6;
+        font-size: 18px;
+        max-width: 58ch;
+      }
+      .card {
+        margin-top: 24px;
         display: grid;
-        grid-template-columns: 1.3fr 0.9fr;
-        gap: 24px;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 18px;
         align-items: stretch;
-      }
-      .panel {
-        background: var(--panel);
+        padding: 18px;
+        border-radius: 28px;
         border: 1px solid var(--line);
-        border-radius: 24px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
-        backdrop-filter: blur(10px);
+        background: var(--panel);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
       }
-      .copy { padding: 28px; }
-      .eyebrow { text-transform: uppercase; letter-spacing: .18em; color: var(--muted); font-size: 12px; }
-      h1 { font-size: clamp(42px, 8vw, 82px); line-height: .92; margin: 12px 0 16px; }
-      p { color: #ccd7e7; line-height: 1.6; font-size: 18px; max-width: 58ch; }
-      .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
-      .btn {
-        display: inline-flex; align-items: center; justify-content: center;
-        min-height: 48px; padding: 0 18px; border-radius: 14px;
-        text-decoration: none; font-weight: 700; border: 1px solid var(--line);
-      }
-      .btn.primary { background: linear-gradient(135deg, var(--accent), #8cffe1); color: #051019; }
-      .btn.secondary { color: var(--text); background: rgba(255,255,255,0.02); }
-      .grid {
-        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 20px;
-      }
-      .stat { padding: 18px; border-radius: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
-      .stat span { display: block; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .14em; }
-      .stat strong { display: block; margin-top: 8px; font-size: 17px; }
       .tile {
-        margin-top: 22px; padding: 20px; border-radius: 22px;
-        background: linear-gradient(180deg, rgba(102, 194, 255, 0.12), rgba(255, 154, 87, 0.08));
-        border: 1px solid rgba(255,255,255,0.08);
+        display: block;
+        padding: 22px;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(180deg, rgba(103, 195, 255, 0.10), rgba(255, 154, 87, 0.06));
+        color: var(--text);
+        text-decoration: none;
       }
-      .tile-link {
-        display: block; text-decoration: none; color: var(--text);
-        padding: 18px; border-radius: 18px; background: rgba(5,8,12,.52); border: 1px solid rgba(255,255,255,.08);
+      .tile small {
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
       }
-      .tile-link small { color: var(--muted); letter-spacing: .12em; text-transform: uppercase; }
-      .tile-link h2 { margin: 8px 0 8px; font-size: 28px; }
-      .tile-link p { font-size: 15px; margin: 0; }
-      .footer { margin-top: 20px; color: var(--muted); font-size: 13px; }
-      @media (max-width: 860px) { .hero { grid-template-columns: 1fr; } .grid { grid-template-columns: 1fr; } }
+      .tile h2 {
+        margin: 10px 0 10px;
+        font-size: 32px;
+      }
+      .tile p { font-size: 15px; }
+      .meta {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .stat {
+        padding: 16px;
+        border-radius: 18px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.06);
+      }
+      .stat span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .stat strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 17px;
+      }
+      .footer {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      @media (max-width: 760px) {
+        .card { grid-template-columns: 1fr; }
+      }
     </style>
   </head>
   <body>
-    <main class="wrap">
-      <section class="hero">
-        <div class="panel copy">
-          <div class="eyebrow">games.atla.in</div>
-          <h1>Three small games. One clean place to play.</h1>
-          <p>
-            This is the launcher for the games collection on Atla. Each game will live
-            on the same subdomain, with Glitch as the first browser-ready puzzle.
-          </p>
-          <div class="cta-row">
-            <a class="btn primary" href="/glitch/">Play Glitch</a>
-            <a class="btn secondary" href="https://atla.in">Back to atla.in</a>
-          </div>
-        </div>
-        <aside class="panel grid" aria-label="Game stats">
-          <div class="stat"><span>Status</span><strong>Prototype ready</strong></div>
-          <div class="stat"><span>Platform</span><strong>Web + mobile</strong></div>
-          <div class="stat"><span>First game</span><strong>Glitch</strong></div>
-          <div class="stat"><span>Style</span><strong>Minimal puzzle</strong></div>
-        </aside>
-      </section>
-      <section class="tile panel">
-        <a class="tile-link" href="/glitch/">
+    <main>
+      <div class="eyebrow">games.atla.in</div>
+      <h1>One card. One game. One click to play.</h1>
+      <p>
+        This launcher starts with Glitch, a one-handed puzzle where one movement
+        rule always lies. Tap the card to launch the game.
+      </p>
+
+      <section class="card" aria-label="Featured game">
+        <a class="tile" href="/glitch/">
           <small>Featured Game</small>
           <h2>Glitch</h2>
-          <p>A one-handed logic puzzle where one movement rule always lies. Catch the lie while solving the board.</p>
+          <p>A one-handed logic puzzle where one movement rule always lies.</p>
         </a>
+        <aside class="meta">
+          <div class="stat"><span>Platform</span><strong>Web + mobile</strong></div>
+          <div class="stat"><span>Play style</span><strong>Short puzzle sessions</strong></div>
+          <div class="stat"><span>Status</span><strong>Prototype ready</strong></div>
+        </aside>
       </section>
-      <div class="footer">Use this page as the root of games.atla.in, then serve each game in its own path.</div>
+
+      <div class="footer">The rest of the games can be added as more cards later.</div>
     </main>
   </body>
 </html>
