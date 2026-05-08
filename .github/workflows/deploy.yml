@@ -41,6 +41,13 @@ jobs:
             --content-type "text/html" \
             --cache-control "public, max-age=60"
 
+      - name: Deploy Break game
+        run: |
+          aws s3 sync deploy/break/ s3://${{ secrets.S3_BUCKET }}/break/ \
+            --delete \
+            --content-type "text/html" \
+            --cache-control "public, max-age=60"
+
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
