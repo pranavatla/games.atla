@@ -202,7 +202,7 @@
     /* ── Game grid ── */
     .game-grid {
       display: grid;
-      grid-template-columns: 1.4fr 0.6fr;
+      grid-template-columns: 1fr 1fr;
       gap: 1.25rem;
       align-items: stretch;
     }
@@ -511,30 +511,46 @@
 
     <!-- Glitch tile -->
     <a class="tile" href="/glitch/" aria-label="Play Glitch">
-      <div class="t-tag">&#9658; Now Playing</div>
+      <div class="t-tag">&#9658; Puzzle</div>
       <div class="t-name">Glitch</div>
       <div class="tile-stats">
-        <span class="stat-badge blue">Web + Mobile</span>
-        <span class="stat-badge">Puzzle</span>
+        <span class="stat-badge blue">Mobile</span>
+        <span class="stat-badge">Logic</span>
         <span class="stat-badge green">Live</span>
       </div>
       <p class="t-desc">
-        A 4x4 logic grid where one movement rule always lies.<br>
-        Swipe to move. Catch the lie. Reach the goal.
+        A 4x4 grid where one movement rule always lies.<br>
+        Swipe, catch the lie, reach the goal.
       </p>
       <span class="pixel-btn">PLAY NOW</span>
     </a>
 
-    <!-- More incoming tile -->
-    <div class="tile-locked" aria-label="More games coming soon">
-      <div class="lock-icon">&#128274;</div>
-      <div class="lock-label">Next Drop</div>
-      <div class="lock-title">MORE INCOMING</div>
-      <p class="lock-sub">
-        The next game is being<br>
-        debugged with AI.<br>
-        Stay tuned.
+    <!-- Invaders tile -->
+    <a class="tile" href="/invaders/" aria-label="Play Invaders" style="border-color:var(--color-blue);box-shadow:inset 0 0 60px rgba(0,0,0,0.4),0 0 0 1px rgba(0,191,255,0.1),0 8px 32px rgba(0,0,0,0.5);">
+      <div class="t-tag" style="color:var(--color-blue);text-shadow:0 0 8px var(--color-blue);">&#9658; Arcade Shooter</div>
+      <div class="t-name" style="color:var(--color-blue);text-shadow:0 0 10px var(--color-blue),0 0 24px var(--color-blue);">Invaders</div>
+      <div class="tile-stats">
+        <span class="stat-badge blue">Keyboard</span>
+        <span class="stat-badge">Shooter</span>
+        <span class="stat-badge green">Live</span>
+      </div>
+      <p class="t-desc">
+        Classic space shooter — 55 aliens, 4 shields,<br>
+        a mystery ship and waves that never stop.
       </p>
+      <span class="pixel-btn" style="background:var(--color-blue);border-color:var(--color-blue);">PLAY NOW</span>
+    </a>
+
+    <!-- More incoming tile -->
+    <div class="tile-locked" aria-label="More games coming soon" style="grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;padding:1.2rem 1.75rem;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div class="lock-icon" style="margin:0;font-size:1.5rem;">&#128274;</div>
+        <div>
+          <div class="lock-title" style="font-size:0.5rem;margin-bottom:4px;">GAME #3 INCOMING</div>
+          <div class="lock-sub">Next build is in the prompt queue. Drop an idea at the repo.</div>
+        </div>
+      </div>
+      <a href="https://github.com/pranavatla/games.atla/issues" target="_blank" rel="noopener" style="font-family:var(--font-retro);font-size:0.38rem;color:var(--color-orange);text-shadow:0 0 8px var(--color-orange);text-decoration:none;border:2px solid var(--color-orange);padding:6px 10px;white-space:nowrap;flex-shrink:0;">SUGGEST&nbsp;&#x2192;</a>
     </div>
 
   </div>

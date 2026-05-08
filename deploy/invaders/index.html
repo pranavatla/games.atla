@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Invaders — games.atla.in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --font-retro:   'Press Start 2P', monospace;
+      --color-neon-1: #FF69B4;
+      --color-neon-2: #CCFF00;
+      --color-purple: #9B59B6;
+      --color-blue:   #00BFFF;
+      --color-orange: #FF6B35;
+      --color-green:  #00FF41;
+      --color-yellow: #FFD700;
+      --bg:   #08060f;
+      --bg2:  #100d1c;
+      --text: #f0e8ff;
+      --muted:#6a5f88;
+    }
+    *{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+    body{
+      min-height:100dvh;
+      font-family:var(--font-retro);
+      background:linear-gradient(180deg,#100d1c 0%,#08060f 70%);
+      color:var(--text);
+      display:flex; flex-direction:column; align-items:center;
+      padding:16px 12px 40px;
+      overflow-x:hidden; position:relative;
+    }
+    /* scanlines */
+    body::before{
+      content:''; pointer-events:none;
+      position:fixed; inset:0; z-index:999;
+      background:repeating-linear-gradient(
+        0deg,transparent,transparent 2px,
+        rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px
+      );
+      animation:scanline 8s linear infinite;
+    }
+    @keyframes scanline{0%{background-position:0 0}100%{background-position:0 100px}}
+    body::after{
+      content:''; pointer-events:none;
+      position:fixed; inset:0; z-index:998;
+      box-shadow:inset 0 0 100px rgba(0,0,0,0.45);
+    }
+
+    .back{
+      align-self:flex-start;
+      font-size:0.4rem; letter-spacing:0.15em;
+      color:var(--muted); text-decoration:none; margin-bottom:12px;
+    }
+    .back:hover{ color:var(--color-blue); text-shadow:0 0 8px var(--color-blue); }
+
+    /* canvas wrapper */
+    .canvas-wrap{
+      position:relative; width:100%; max-width:560px;
+      border:4px solid var(--color-purple);
+      box-shadow:0 0 24px rgba(155,89,182,0.3), inset 0 0 40px rgba(0,0,0,0.6);
+      background:#000;
+    }
+    canvas{
+      display:block; width:100%; height:auto;
+      image-rendering:pixelated;
+    }
+
+    /* mobile controls */
+    .controls{
+      width:100%; max-width:560px;
+      display:none;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:10px; gap:8px;
+    }
+    @media(pointer:coarse){ .controls{ display:flex; } }
+    .ctrl-btn{
+      font-family:var(--font-retro);
+      font-size:0.7rem;
+      padding:14px 20px;
+      background:var(--bg2);
+      border:4px solid var(--color-purple);
+      color:var(--text);
+      cursor:pointer;
+      box-shadow:4px 4px 0 rgba(0,0,0,0.6);
+      flex:1; text-align:center;
+      user-select:none; -webkit-user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .ctrl-btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 rgba(0,0,0,0.6); }
+    .ctrl-fire{
+      background:rgba(204,255,0,0.12);
+      border-color:var(--color-neon-2);
+      color:var(--color-neon-2);
+      text-shadow:0 0 8px var(--color-neon-2);
+      flex:2;
+    }
+
+    /* how to play */
+    .htp{
+      width:100%; max-width:560px; margin-top:16px;
+      background:var(--bg2);
+      border:4px solid var(--color-yellow);
+      box-shadow:inset 0 0 30px rgba(0,0,0,0.4);
+      padding:14px;
+    }
+    .htp-lbl{
+      font-size:0.38rem; font-weight:700; letter-spacing:0.18em;
+      text-transform:uppercase; color:var(--color-yellow);
+      text-shadow:0 0 8px var(--color-yellow); margin-bottom:12px;
+    }
+    .htp-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:8px;
+    }
+    .htp-row{
+      display:flex; align-items:flex-start; gap:8px;
+      font-size:0.35rem; line-height:2;
+    }
+    .htp-icon{
+      flex-shrink:0; width:20px; height:20px;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--color-yellow); color:#000; font-size:0.38rem;
+    }
+    .htp-text{ color:var(--text); }
+    .htp-text em{ font-style:normal; color:var(--color-orange); text-shadow:0 0 6px var(--color-orange); }
+    .htp-text b{ color:var(--color-neon-2); text-shadow:0 0 6px var(--color-neon-2); }
+    @media(max-width:480px){ .htp-grid{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<a class="back" href="/">&lt; games.atla.in</a>
+
+<div class="canvas-wrap">
+  <canvas id="c" width="560" height="480"></canvas>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" id="btnLeft">&#9664;</button>
+  <button class="ctrl-btn ctrl-fire" id="btnFire">FIRE</button>
+  <button class="ctrl-btn" id="btnRight">&#9654;</button>
+</div>
+
+<div class="htp">
+  <div class="htp-lbl">&#x2605; How to Play</div>
+  <div class="htp-grid">
+    <div class="htp-row"><div class="htp-icon">1</div><div class="htp-text">Use <b>&#8592; &#8594; Arrow keys</b> or buttons to move your ship</div></div>
+    <div class="htp-row"><div class="htp-icon">2</div><div class="htp-text">Press <b>Space / Z</b> or <b>FIRE</b> button to shoot</div></div>
+    <div class="htp-row"><div class="htp-icon">3</div><div class="htp-text">Destroy all aliens before they reach the bottom</div></div>
+    <div class="htp-row"><div class="htp-icon">4</div><div class="htp-text"><em>Top aliens = 30pts &nbsp; Mid = 20pts &nbsp; Bottom = 10pts</em></div></div>
+    <div class="htp-row"><div class="htp-icon">5</div><div class="htp-text">Hide behind the <b>green shields</b> — they absorb bullets</div></div>
+    <div class="htp-row"><div class="htp-icon">6</div><div class="htp-text">Shoot the <b style="color:#FFD700;text-shadow:0 0 8px #FFD700">&#x25BA; mystery ship</b> for <em>150 bonus points!</em></div></div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   INVADERS  —  games.atla.in/invaders
+   ================================================================ */
+
+const W = 560, H = 480;
+const cv = document.getElementById('c');
+const cx = cv.getContext('2d');
+
+// ── Palette ──────────────────────────────────────────────────────
+const C = {
+  bg:     '#000008',
+  squid:  '#00BFFF',
+  crab:   '#9B59B6',
+  octo:   '#FF6B35',
+  player: '#FF69B4',
+  bullet: '#CCFF00',
+  alien_b:'#FF4444',
+  shield: '#00FF41',
+  mystery:'#FFD700',
+  white:  '#FFFFFF',
+  muted:  '#5a4f78',
+  expl:   '#FFFFFF',
+};
+
+// ── Sprite data (8×8, 2 frames each) ─────────────────────────────
+const SPR = {
+  // Squid — top 1 row — 30 pts
+  squid: [
+    [0,0,1,1,1,1,0,0, 0,1,1,1,1,1,1,0, 1,1,0,1,1,0,1,1, 1,1,1,1,1,1,1,1,
+     0,1,1,1,1,1,1,0, 0,0,1,0,0,1,0,0, 0,1,0,1,1,0,1,0, 1,0,0,0,0,0,0,1],
+    [0,0,1,1,1,1,0,0, 0,1,1,1,1,1,1,0, 1,1,0,1,1,0,1,1, 1,1,1,1,1,1,1,1,
+     0,0,1,1,1,1,0,0, 0,1,0,1,1,0,1,0, 1,0,1,0,0,1,0,1, 0,1,0,0,0,0,1,0]
+  ],
+  // Crab — rows 2-3 — 20 pts
+  crab: [
+    [0,1,0,0,0,0,1,0, 0,0,1,0,0,1,0,0, 0,1,1,1,1,1,1,0, 1,1,0,1,1,0,1,1,
+     1,1,1,1,1,1,1,1, 0,1,1,1,1,1,1,0, 0,1,0,1,1,0,1,0, 1,0,1,0,0,1,0,1],
+    [0,1,0,0,0,0,1,0, 1,0,0,1,0,1,0,0, 1,0,1,1,1,1,0,1, 1,1,1,1,1,1,1,1,
+     1,1,1,1,1,1,1,1, 0,1,1,1,1,1,1,0, 0,0,1,0,0,1,0,0, 0,1,0,0,0,0,1,0]
+  ],
+  // Octopus — rows 4-5 — 10 pts
+  octo: [
+    [0,0,1,1,1,1,0,0, 0,1,1,1,1,1,1,0, 1,1,1,1,1,1,1,1, 1,1,0,1,1,0,1,1,
+     1,1,1,1,1,1,1,1, 0,1,1,0,0,1,1,0, 0,1,0,0,0,0,1,0, 0,0,1,0,0,1,0,0],
+    [0,0,1,1,1,1,0,0, 0,1,1,1,1,1,1,0, 1,1,1,1,1,1,1,1, 1,1,0,1,1,0,1,1,
+     1,1,1,1,1,1,1,1, 0,1,1,0,0,1,1,0, 0,0,1,0,0,1,0,0, 0,1,0,0,0,0,1,0]
+  ],
+  // Explosion
+  expl: [
+    [0,1,0,0,1,0,1,0, 1,0,1,0,0,1,0,0, 0,1,0,1,1,0,1,1, 0,0,1,1,1,1,0,0,
+     0,0,1,1,1,1,0,0, 0,1,0,1,1,0,1,0, 1,0,0,0,0,1,0,1, 0,1,0,0,1,0,0,1]
+  ],
+  // Player cannon
+  player: [
+    [0,0,0,0,1,0,0,0,0,0,0, 0,0,0,1,1,1,0,0,0,0,0, 0,0,0,1,1,1,0,0,0,0,0,
+     0,1,1,1,1,1,1,1,1,0,0, 1,1,1,1,1,1,1,1,1,1,0, 1,1,1,1,1,1,1,1,1,1,0]
+  ]
+};
+
+// Sprite scale: each pixel = SP×SP canvas pixels
+const SP = 3;
+
+function drawSprite(spr, frame, x, y, color) {
+  const f = spr[frame % spr.length];
+  cx.fillStyle = color;
+  if (spr === SPR.player) {
+    // player: 11 wide, 6 tall
+    for (let r = 0; r < 6; r++)
+      for (let c = 0; c < 11; c++)
+        if (f[r*11+c]) cx.fillRect(x+c*SP, y+r*SP, SP, SP);
+  } else {
+    for (let r = 0; r < 8; r++)
+      for (let c = 0; c < 8; c++)
+        if (f[r*8+c]) cx.fillRect(x+c*SP, y+r*SP, SP, SP);
+  }
+}
+
+// ── Shield block ─────────────────────────────────────────────────
+// Each shield = 22×16 pixel grid (4px each)
+const SH_COLS = 22, SH_ROWS = 16, SH_PX = 2;
+// Classic bunker silhouette (22×16):
+const BUNKER_SHAPE = (()=>{
+  const s = [];
+  for (let r=0;r<SH_ROWS;r++) {
+    for (let c=0;c<SH_COLS;c++) {
+      // arch opening at bottom-centre
+      const inArch = r>=10 && c>=8 && c<=13;
+      // cut corners
+      const topCorner = (r<2 && (c<2 || c>=SH_COLS-2));
+      s.push(!inArch && !topCorner ? 1 : 0);
+    }
+  }
+  return s;
+})();
+
+function makeShield(x, y) {
+  return { x, y, hp: BUNKER_SHAPE.map(v => v * 3) };
+}
+
+// ── Audio ─────────────────────────────────────────────────────────
+let audioCtx = null;
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq, dur, vol=0.15, type='square') {
+  try {
+    const a = getAudio();
+    const osc = a.createOscillator();
+    const gain = a.createGain();
+    osc.connect(gain); gain.connect(a.destination);
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, a.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dur);
+    osc.start(); osc.stop(a.currentTime + dur);
+  } catch(e){}
+}
+function shootSound()   { beep(880, 0.08, 0.1); }
+function explodeSound() { beep(100, 0.25, 0.2, 'sawtooth'); }
+function playerDieSound(){ beep(120, 0.6, 0.25, 'sawtooth'); beep(60, 0.8, 0.2, 'sawtooth'); }
+function mysterySound() { beep(1200, 0.12, 0.15); }
+function levelUpSound() { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,0.15),i*120)); }
+
+// Alien march beats
+const MARCH_NOTES = [160, 130, 110, 90];
+let marchBeat = 0;
+function marchSound() { beep(MARCH_NOTES[marchBeat%4], 0.06, 0.1, 'square'); marchBeat++; }
+
+// ── Game state ────────────────────────────────────────────────────
+const COLS = 11, ROWS = 5;
+const CELL_W = 48, CELL_H = 40;
+const ALIEN_ORIGIN_X = 24, ALIEN_ORIGIN_Y = 72;
+const PLAYER_Y = 420;
+const PLAYER_W = 33, PLAYER_H = 18;
+const SHIELD_Y = 360;
+const MYSTERY_Y = 28;
+
+let gs; // game state object
+
+function newGame() {
+  gs = {
+    phase: 'title',     // title | playing | dying | gameover | waveclear
+    score: 0,
+    hiScore: parseInt(localStorage.getItem('inv_hi')||'0'),
+    lives: 3,
+    wave: 1,
+
+    // aliens[row][col] = {alive, exploding, explFrame}
+    aliens: [],
+    formX: ALIEN_ORIGIN_X,  // formation left edge
+    formY: ALIEN_ORIGIN_Y,
+    formDX: 1,              // direction: 1=right, -1=left
+    formSpeed: 0.3,         // px per frame
+    marchTimer: 0,
+    marchInterval: 60,      // frames between marches
+
+    // player
+    px: W/2 - PLAYER_W/2,
+    pFrame: 0,
+    pdx: 0,
+    playerAlive: true,
+    playerDyingTimer: 0,
+
+    // bullets
+    pbullet: null,          // {x,y} player bullet
+    abullets: [],           // alien bullets
+
+    // shields
+    shields: [],
+
+    // mystery
+    mystery: null,          // {x, dir} or null
+    mysteryTimer: 0,
+    mysteryInterval: 900,
+
+    // particle explosions
+    particles: [],
+
+    // misc
+    alienFrame: 0,
+    frameCount: 0,
+    flashTimer: 0,          // for screen flash
+  };
+  buildWave();
+}
+
+function buildWave() {
+  // Aliens
+  gs.aliens = [];
+  for (let r=0; r<ROWS; r++) {
+    gs.aliens[r] = [];
+    for (let c=0; c<COLS; c++) {
+      gs.aliens[r][c] = { alive:true, exploding:false, explFrame:0 };
+    }
+  }
+  gs.formX = ALIEN_ORIGIN_X;
+  gs.formY = ALIEN_ORIGIN_Y;
+  gs.formDX = 1;
+  // Speed scales with wave
+  gs.formSpeed = 0.28 + gs.wave * 0.04;
+  gs.marchInterval = Math.max(12, 60 - gs.wave * 5);
+  gs.marchTimer = 0;
+
+  // Shields (fresh each wave)
+  gs.shields = [
+    makeShield(44,  SHIELD_Y),
+    makeShield(168, SHIELD_Y),
+    makeShield(292, SHIELD_Y),
+    makeShield(416, SHIELD_Y),
+  ];
+
+  gs.pbullet = null;
+  gs.abullets = [];
+  gs.mystery = null;
+  gs.mysteryTimer = 0;
+}
+
+// Count living aliens
+function aliveCount() {
+  let n=0;
+  for (let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(gs.aliens[r][c].alive) n++;
+  return n;
+}
+
+// Get pixel position of alien[r][c]
+function alienPos(r, c) {
+  return {
+    x: gs.formX + c * CELL_W,
+    y: gs.formY + r * CELL_H,
+  };
+}
+
+// Alien type by row
+function alienType(r) {
+  if (r===0) return 'squid';
+  if (r<=2)  return 'crab';
+  return 'octo';
+}
+function alienPts(r) {
+  return r===0 ? 30 : r<=2 ? 20 : 10;
+}
+function alienColor(r) {
+  return r===0 ? C.squid : r<=2 ? C.crab : C.octo;
+}
+
+// Spawn particles
+function explode(x, y, color) {
+  for (let i=0;i<8;i++) {
+    const a = (i/8)*Math.PI*2;
+    gs.particles.push({
+      x: x+12, y: y+12,
+      vx: Math.cos(a)*(1.5+Math.random()*2),
+      vy: Math.sin(a)*(1.5+Math.random()*2),
+      life: 22+Math.random()*12,
+      maxLife: 34,
+      color,
+    });
+  }
+}
+
+// ── Update ────────────────────────────────────────────────────────
+function update() {
+  if (gs.phase === 'title' || gs.phase === 'gameover') return;
+  if (gs.phase === 'waveclear') {
+    gs.frameCount++;
+    if (gs.frameCount > 120) {
+      gs.wave++;
+      gs.phase = 'playing';
+      buildWave();
+    }
+    return;
+  }
+  if (gs.phase === 'dying') {
+    gs.playerDyingTimer--;
+    gs.particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.life--; });
+    gs.particles = gs.particles.filter(p=>p.life>0);
+    if (gs.playerDyingTimer <= 0) {
+      if (gs.lives <= 0) {
+        gs.phase = 'gameover';
+        if (gs.score > gs.hiScore) {
+          gs.hiScore = gs.score;
+          localStorage.setItem('inv_hi', gs.hiScore);
+        }
+      } else {
+        gs.phase = 'playing';
+        gs.playerAlive = true;
+        gs.px = W/2 - PLAYER_W/2;
+        gs.pbullet = null;
+      }
+    }
+    return;
+  }
+
+  gs.frameCount++;
+  if (gs.flashTimer > 0) gs.flashTimer--;
+
+  // ── Player movement ──
+  if (gs.playerAlive) {
+    gs.px = Math.max(4, Math.min(W - PLAYER_W - 4, gs.px + gs.pdx * 3));
+  }
+
+  // ── Player bullet ──
+  if (gs.pbullet) {
+    gs.pbullet.y -= 9;
+    if (gs.pbullet.y < 0) gs.pbullet = null;
+  }
+
+  // ── Alien march ──
+  gs.marchTimer++;
+  const alive = aliveCount();
+  const dynamicInterval = Math.max(4, Math.floor(gs.marchInterval * alive / 55));
+  if (gs.marchTimer >= dynamicInterval) {
+    gs.marchTimer = 0;
+    marchSound();
+    gs.alienFrame ^= 1;
+
+    // Move formation
+    gs.formX += gs.formDX * gs.formSpeed * dynamicInterval;
+
+    // Find bounds
+    let minC=COLS, maxC=-1;
+    for (let r=0;r<ROWS;r++) for(let c=0;c<COLS;c++) if(gs.aliens[r][c].alive){ minC=Math.min(minC,c); maxC=Math.max(maxC,c); }
+    const leftX  = gs.formX + minC*CELL_W;
+    const rightX = gs.formX + maxC*CELL_W + 24;
+
+    if (rightX >= W-8 && gs.formDX===1) { gs.formDX=-1; gs.formY+=12; }
+    if (leftX  <= 8   && gs.formDX===-1){ gs.formDX= 1; gs.formY+=12; }
+  }
+
+  // ── Alien shooting ──
+  if (gs.frameCount % 42 === 0 && gs.abullets.length < 3+gs.wave) {
+    // pick a random column, shoot from the bottom-most alive alien in it
+    const cols = [];
+    for (let c=0;c<COLS;c++) {
+      for (let r=ROWS-1;r>=0;r--) {
+        if (gs.aliens[r][c].alive) { cols.push({r,c}); break; }
+      }
+    }
+    if (cols.length) {
+      const pick = cols[Math.floor(Math.random()*cols.length)];
+      const p = alienPos(pick.r, pick.c);
+      gs.abullets.push({ x: p.x+11, y: p.y+24 });
+    }
+  }
+
+  // Move alien bullets
+  gs.abullets.forEach(b => b.y += 5 + gs.wave*0.3);
+  gs.abullets = gs.abullets.filter(b => b.y < H);
+
+  // ── Mystery ship ──
+  gs.mysteryTimer++;
+  if (!gs.mystery && gs.mysteryTimer > gs.mysteryInterval && alive < 50) {
+    gs.mystery = { x: -48, dir: 1 };
+    gs.mysteryTimer = 0;
+    gs.mysteryInterval = 600 + Math.random()*400;
+  }
+  if (gs.mystery) {
+    gs.mystery.x += gs.mystery.dir * 2.5;
+    if (gs.mystery.x > W+10) gs.mystery = null;
+  }
+
+  // ── Particles ──
+  gs.particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vx*=0.92; p.vy*=0.92; p.life--; });
+  gs.particles = gs.particles.filter(p=>p.life>0);
+
+  // ── Collisions ──
+  // Player bullet vs aliens
+  if (gs.pbullet) {
+    outer:
+    for (let r=0;r<ROWS;r++) {
+      for (let c=0;c<COLS;c++) {
+        if (!gs.aliens[r][c].alive) continue;
+        const p = alienPos(r,c);
+        if (gs.pbullet.x>=p.x && gs.pbullet.x<=p.x+24 &&
+            gs.pbullet.y>=p.y && gs.pbullet.y<=p.y+24) {
+          gs.aliens[r][c].alive = false;
+          gs.score += alienPts(r);
+          gs.pbullet = null;
+          explode(p.x, p.y, alienColor(r));
+          explodeSound();
+          gs.flashTimer = 3;
+          // Speed up on few remaining
+          if (aliveCount() < 10) gs.formSpeed += 0.05;
+          break outer;
+        }
+      }
+    }
+  }
+
+  // Player bullet vs mystery
+  if (gs.pbullet && gs.mystery) {
+    if (gs.pbullet.x >= gs.mystery.x && gs.pbullet.x <= gs.mystery.x+36 &&
+        gs.pbullet.y <= MYSTERY_Y+12 && gs.pbullet.y >= MYSTERY_Y-4) {
+      gs.score += 150;
+      explode(gs.mystery.x, MYSTERY_Y, C.mystery);
+      mysterySound();
+      gs.mystery = null;
+      gs.pbullet = null;
+      gs.flashTimer = 4;
+    }
+  }
+
+  // Player bullet vs shields
+  if (gs.pbullet) {
+    for (const sh of gs.shields) {
+      const lx = gs.pbullet.x - sh.x, ly = gs.pbullet.y - sh.y;
+      const sc = Math.floor(lx/SH_PX), sr = Math.floor(ly/SH_PX);
+      if (sc>=0&&sc<SH_COLS&&sr>=0&&sr<SH_ROWS) {
+        const idx = sr*SH_COLS+sc;
+        if (sh.hp[idx]>0) {
+          sh.hp[idx]--;
+          // damage neighbours too
+          [-1,0,1].forEach(dr=>[-1,0,1].forEach(dc=>{
+            const ni=( sr+dr)*SH_COLS+(sc+dc);
+            if(ni>=0&&ni<sh.hp.length&&sh.hp[ni]>0) sh.hp[ni]=Math.max(0,sh.hp[ni]-1);
+          }));
+          gs.pbullet = null;
+          break;
+        }
+      }
+    }
+  }
+
+  // Alien bullets vs player
+  if (gs.playerAlive) {
+    for (let i=gs.abullets.length-1;i>=0;i--) {
+      const b = gs.abullets[i];
+      if (b.x>=gs.px-2 && b.x<=gs.px+PLAYER_W+2 &&
+          b.y>=PLAYER_Y-4 && b.y<=PLAYER_Y+PLAYER_H+4) {
+        gs.abullets.splice(i,1);
+        gs.lives--;
+        gs.playerAlive = false;
+        gs.phase = 'dying';
+        gs.playerDyingTimer = 100;
+        explode(gs.px+PLAYER_W/2-12, PLAYER_Y, C.player);
+        explode(gs.px+4, PLAYER_Y+8, '#FF4499');
+        playerDieSound();
+        break;
+      }
+    }
+  }
+
+  // Alien bullets vs shields
+  for (let i=gs.abullets.length-1;i>=0;i--) {
+    const b = gs.abullets[i];
+    let hit = false;
+    for (const sh of gs.shields) {
+      const lx=b.x-sh.x, ly=b.y-sh.y;
+      const sc=Math.floor(lx/SH_PX), sr=Math.floor(ly/SH_PX);
+      if(sc>=0&&sc<SH_COLS&&sr>=0&&sr<SH_ROWS){
+        const idx=sr*SH_COLS+sc;
+        if(sh.hp[idx]>0){ sh.hp[idx]=Math.max(0,sh.hp[idx]-2); hit=true; break; }
+      }
+    }
+    if(hit) gs.abullets.splice(i,1);
+  }
+
+  // Aliens reach bottom / shields
+  for (let r=0;r<ROWS;r++) {
+    for (let c=0;c<COLS;c++) {
+      if (!gs.aliens[r][c].alive) continue;
+      const p = alienPos(r,c);
+      if (p.y + 24 >= PLAYER_Y - 8) {
+        // Game over — aliens reached player line
+        gs.lives = 0;
+        gs.phase = 'gameover';
+        if (gs.score > gs.hiScore) { gs.hiScore=gs.score; localStorage.setItem('inv_hi',gs.hiScore); }
+        return;
+      }
+    }
+  }
+
+  // Wave cleared
+  if (aliveCount() === 0) {
+    gs.phase = 'waveclear';
+    gs.frameCount = 0;
+    levelUpSound();
+  }
+}
+
+// ── Draw ─────────────────────────────────────────────────────────
+function draw() {
+  // Background
+  cx.fillStyle = gs.flashTimer>0 ? '#1a0820' : C.bg;
+  cx.fillRect(0,0,W,H);
+
+  // Stars
+  cx.fillStyle = 'rgba(255,255,255,0.25)';
+  for(let i=0;i<40;i++){
+    const x=(i*137)%W, y=(i*97+gs.frameCount*0.02)%H;
+    cx.fillRect(x,y,1,1);
+  }
+
+  if (gs.phase==='title')    { drawTitle(); return; }
+  if (gs.phase==='gameover') { drawGameOver(); return; }
+
+  drawHUD();
+  drawShields();
+  drawAliens();
+  drawMystery();
+  drawBullets();
+  drawPlayer();
+  drawParticles();
+
+  if (gs.phase==='waveclear') drawWaveClear();
+  if (gs.phase==='dying') {
+    // flash player position
+    if (gs.playerDyingTimer % 12 < 6) {
+      cx.fillStyle = C.player;
+      cx.font = `${SP*6}px ${getComputedStyle(document.body).fontFamily}`;
+    }
+  }
+}
+
+function drawHUD() {
+  cx.font = '8px "Press Start 2P"';
+  cx.textBaseline = 'top';
+
+  cx.fillStyle = C.squid;
+  cx.fillText('SCORE', 8, 8);
+  cx.fillStyle = '#fff';
+  cx.fillText(String(gs.score).padStart(6,'0'), 8, 22);
+
+  cx.fillStyle = C.muted;
+  const hiStr = 'HI  '+String(gs.hiScore).padStart(6,'0');
+  const hiW = cx.measureText(hiStr).width;
+  cx.fillText(hiStr, W/2 - hiW/2, 8);
+
+  // Lives
+  cx.fillStyle = C.player;
+  cx.fillText('LIVES', W-72, 8);
+  for(let i=0;i<gs.lives;i++) {
+    cx.fillStyle = C.player;
+    cx.fillRect(W-70+i*14, 22, 10, 6);
+    cx.fillRect(W-67+i*14, 18, 4,  4);
+  }
+
+  // Wave
+  cx.fillStyle = C.muted;
+  cx.fillText('WAVE '+gs.wave, W/2-36, 22);
+
+  // Bottom line
+  cx.fillStyle = C.player;
+  cx.fillRect(0, H-24, W, 2);
+}
+
+function drawAliens() {
+  for (let r=0;r<ROWS;r++) {
+    for (let c=0;c<COLS;c++) {
+      if (!gs.aliens[r][c].alive) continue;
+      const p = alienPos(r,c);
+      const type = alienType(r);
+      drawSprite(SPR[type], gs.alienFrame, p.x, p.y, alienColor(r));
+    }
+  }
+}
+
+function drawShields() {
+  for (const sh of gs.shields) {
+    for (let r=0;r<SH_ROWS;r++) {
+      for (let c=0;c<SH_COLS;c++) {
+        const hp = sh.hp[r*SH_COLS+c];
+        if (hp<=0) continue;
+        // Color fades with damage
+        const alpha = 0.4 + hp/3*0.6;
+        cx.fillStyle = hp===3 ? C.shield :
+                       hp===2 ? '#00cc33' : '#006622';
+        cx.globalAlpha = alpha;
+        cx.fillRect(sh.x+c*SH_PX, sh.y+r*SH_PX, SH_PX, SH_PX);
+      }
+    }
+    cx.globalAlpha = 1;
+  }
+}
+
+function drawBullets() {
+  // Player bullet — lime green
+  if (gs.pbullet) {
+    cx.fillStyle = C.bullet;
+    cx.shadowBlur = 6; cx.shadowColor = C.bullet;
+    cx.fillRect(gs.pbullet.x-1, gs.pbullet.y, 3, 12);
+    cx.shadowBlur = 0;
+  }
+  // Alien bullets — red jagged
+  cx.fillStyle = C.alien_b;
+  cx.shadowBlur = 4; cx.shadowColor = C.alien_b;
+  for (const b of gs.abullets) {
+    cx.fillRect(b.x-1, b.y,   3, 4);
+    cx.fillRect(b.x-2, b.y+4, 2, 4);
+    cx.fillRect(b.x,   b.y+8, 2, 4);
+  }
+  cx.shadowBlur = 0;
+}
+
+function drawPlayer() {
+  if (!gs.playerAlive) return;
+  cx.shadowBlur = 10; cx.shadowColor = C.player;
+  drawSprite(SPR.player, 0, gs.px, PLAYER_Y, C.player);
+  cx.shadowBlur = 0;
+}
+
+function drawMystery() {
+  if (!gs.mystery) return;
+  const x = gs.mystery.x, y = MYSTERY_Y;
+  cx.shadowBlur = 12; cx.shadowColor = C.mystery;
+  cx.fillStyle = C.mystery;
+  // Simple mystery ship shape
+  cx.fillRect(x+8, y,    20, 6);
+  cx.fillRect(x+4, y+6,  28, 6);
+  cx.fillRect(x,   y+12, 36, 6);
+  cx.fillRect(x+6, y-4,  6,  4);
+  cx.fillRect(x+16,y-4,  6,  4);
+  cx.fillRect(x+24,y-4,  6,  4);
+  cx.shadowBlur = 0;
+  // Blink
+  if (gs.frameCount%30<15) {
+    cx.fillStyle = '#fff';
+    cx.fillRect(x+10,y+2,4,2);
+    cx.fillRect(x+22,y+2,4,2);
+  }
+}
+
+function drawParticles() {
+  for (const p of gs.particles) {
+    const alpha = p.life/p.maxLife;
+    cx.globalAlpha = alpha;
+    cx.fillStyle = p.color;
+    cx.fillRect(p.x-1,p.y-1,3,3);
+  }
+  cx.globalAlpha = 1;
+}
+
+function drawTitle() {
+  drawHUD();
+  drawAliens();
+  drawShields();
+
+  // semi-transparent overlay
+  cx.fillStyle = 'rgba(0,0,10,0.72)';
+  cx.fillRect(0,0,W,H);
+
+  cx.textAlign = 'center'; cx.textBaseline = 'middle';
+  cx.shadowBlur = 20;
+
+  // Title
+  cx.font = '28px "Press Start 2P"';
+  cx.shadowColor = '#FF69B4';
+  cx.fillStyle = '#FF69B4';
+  cx.fillText('INVADERS', W/2, H/2-90);
+
+  // score table
+  cx.font = '8px "Press Start 2P"';
+  cx.shadowBlur = 8;
+  const rows2 = [
+    {spr:'squid', col:C.squid,  pts:'= 30 PTS'},
+    {spr:'crab',  col:C.crab,   pts:'= 20 PTS'},
+    {spr:'octo',  col:C.octo,   pts:'= 10 PTS'},
+  ];
+  rows2.forEach((item,i) => {
+    const y = H/2 - 40 + i*34;
+    cx.shadowColor = item.col;
+    drawSprite(SPR[item.spr], 0, W/2-64, y-12, item.col);
+    cx.fillStyle = item.col;
+    cx.fillText(item.pts, W/2+20, y);
+  });
+
+  // mystery row
+  {
+    const y = H/2+64;
+    cx.shadowColor = C.mystery; cx.fillStyle = C.mystery;
+    cx.fillRect(W/2-64, y-8, 36, 6);
+    cx.fillRect(W/2-68, y-2, 44, 6);
+    cx.fillRect(W/2-72, y+4, 52, 6);
+    cx.fillText('= 150 PTS', W/2+20, y+2);
+  }
+
+  cx.shadowBlur = 0;
+  // Blink press start
+  if (gs.frameCount%60<35) {
+    cx.font = '9px "Press Start 2P"';
+    cx.fillStyle = C.bullet;
+    cx.shadowColor = C.bullet; cx.shadowBlur=10;
+    cx.fillText('PRESS  SPACE  TO  START', W/2, H/2+110);
+  }
+  cx.shadowBlur = 0; cx.textAlign = 'left';
+}
+
+function drawGameOver() {
+  cx.fillStyle = C.bg; cx.fillRect(0,0,W,H);
+  drawParticles();
+
+  cx.textAlign='center'; cx.textBaseline='middle';
+
+  cx.font = '24px "Press Start 2P"';
+  cx.shadowBlur=20; cx.shadowColor=C.alien_b;
+  cx.fillStyle = C.alien_b;
+  cx.fillText('GAME  OVER', W/2, H/2-60);
+
+  cx.font = '9px "Press Start 2P"';
+  cx.shadowColor='#fff'; cx.fillStyle='#fff';
+  cx.fillText('SCORE  '+String(gs.score).padStart(6,'0'), W/2, H/2-10);
+  cx.fillStyle=C.mystery; cx.shadowColor=C.mystery;
+  cx.fillText('BEST   '+String(gs.hiScore).padStart(6,'0'), W/2, H/2+14);
+
+  if (gs.frameCount%60<35) {
+    cx.font='8px "Press Start 2P"';
+    cx.fillStyle=C.bullet; cx.shadowColor=C.bullet; cx.shadowBlur=10;
+    cx.fillText('PRESS  SPACE  TO  RETRY', W/2, H/2+60);
+  }
+  cx.shadowBlur=0; cx.textAlign='left';
+}
+
+function drawWaveClear() {
+  cx.fillStyle='rgba(0,0,10,0.7)'; cx.fillRect(0,0,W,H);
+  cx.textAlign='center'; cx.textBaseline='middle';
+  cx.font='14px "Press Start 2P"';
+  cx.shadowBlur=16; cx.shadowColor=C.bullet; cx.fillStyle=C.bullet;
+  cx.fillText('WAVE '+(gs.wave)+' CLEARED!', W/2, H/2-20);
+  cx.font='8px "Press Start 2P"';
+  cx.fillStyle=C.muted; cx.shadowBlur=0;
+  cx.fillText('PREPARING WAVE '+(gs.wave+1)+'...', W/2, H/2+14);
+  cx.textAlign='left';
+}
+
+// ── Input ─────────────────────────────────────────────────────────
+const keys = {};
+document.addEventListener('keydown', e=>{
+  keys[e.code] = true;
+  if (!audioCtx) getAudio(); // unlock audio on first key
+  if (e.code==='Space') e.preventDefault();
+
+  if (gs.phase==='title' && e.code==='Space') {
+    gs.phase='playing'; gs.frameCount=0;
+  } else if (gs.phase==='gameover' && e.code==='Space') {
+    newGame(); gs.phase='playing';
+  } else if (gs.phase==='playing') {
+    if ((e.code==='Space'||e.code==='KeyZ') && !gs.pbullet && gs.playerAlive) {
+      gs.pbullet = { x: gs.px + PLAYER_W/2, y: PLAYER_Y - 4 };
+      shootSound();
+    }
+  }
+});
+document.addEventListener('keyup', e=>{ keys[e.code]=false; });
+
+// Poll movement keys each frame
+function handleKeys() {
+  if (gs.phase!=='playing') return;
+  gs.pdx = keys['ArrowLeft']||keys['KeyA'] ? -1 : keys['ArrowRight']||keys['KeyD'] ? 1 : 0;
+}
+
+// Mobile buttons
+const btnL = document.getElementById('btnLeft');
+const btnR = document.getElementById('btnRight');
+const btnF = document.getElementById('btnFire');
+
+function mobileDown(dir) {
+  if (!audioCtx) getAudio();
+  if (gs.phase==='title')    { gs.phase='playing'; gs.frameCount=0; return; }
+  if (gs.phase==='gameover') { newGame(); gs.phase='playing'; return; }
+  gs.pdx = dir;
+}
+function mobileUp()   { gs.pdx = 0; }
+function mobileFire() {
+  if (!audioCtx) getAudio();
+  if (gs.phase==='title')    { gs.phase='playing'; gs.frameCount=0; return; }
+  if (gs.phase==='gameover') { newGame(); gs.phase='playing'; return; }
+  if (gs.phase==='playing' && !gs.pbullet && gs.playerAlive) {
+    gs.pbullet = { x: gs.px + PLAYER_W/2, y: PLAYER_Y - 4 };
+    shootSound();
+  }
+}
+
+btnL.addEventListener('pointerdown', ()=>mobileDown(-1));
+btnR.addEventListener('pointerdown', ()=>mobileDown(1));
+btnF.addEventListener('pointerdown', mobileFire);
+[btnL,btnR].forEach(b=>{
+  b.addEventListener('pointerup',   mobileUp);
+  b.addEventListener('pointerleave',mobileUp);
+});
+
+// ── Game loop ─────────────────────────────────────────────────────
+let lastT = 0;
+function loop(t) {
+  requestAnimationFrame(loop);
+  if (t - lastT < 14) return; // ~60fps cap
+  lastT = t;
+  handleKeys();
+  update();
+  draw();
+  gs.frameCount++;
+}
+
+// ── Boot ──────────────────────────────────────────────────────────
+cx.font = '8px "Press Start 2P"'; // pre-load font
+newGame();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

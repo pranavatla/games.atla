@@ -34,6 +34,13 @@ jobs:
             --content-type "text/html" \
             --cache-control "public, max-age=60"
 
+      - name: Deploy Invaders game
+        run: |
+          aws s3 sync deploy/invaders/ s3://${{ secrets.S3_BUCKET }}/invaders/ \
+            --delete \
+            --content-type "text/html" \
+            --cache-control "public, max-age=60"
+
       - name: Invalidate CloudFront cache
         run: |
           aws cloudfront create-invalidation \
