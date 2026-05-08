@@ -1,165 +1,564 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>games.atla.in</title>
-    <style>
-      :root {
-        color-scheme: dark;
-        --bg: #07090d;
-        --panel: rgba(15, 18, 24, 0.94);
-        --line: rgba(140, 170, 220, 0.18);
-        --text: #edf3fb;
-        --muted: #97a6bc;
-        --accent: #67c3ff;
-      }
-      * { box-sizing: border-box; }
-      body {
-        margin: 0;
-        min-height: 100vh;
-        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-        color: var(--text);
-        background:
-          radial-gradient(circle at top left, rgba(103, 195, 255, 0.15), transparent 28%),
-          radial-gradient(circle at bottom right, rgba(255, 154, 87, 0.10), transparent 24%),
-          linear-gradient(180deg, #0b0f16 0%, #07090d 100%);
-      }
-      main {
-        max-width: 920px;
-        margin: 0 auto;
-        padding: 36px 20px 44px;
-      }
-      .eyebrow {
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.18em;
-        font-size: 12px;
-      }
-      h1 {
-        margin: 12px 0 12px;
-        font-size: clamp(44px, 8vw, 84px);
-        line-height: 0.92;
-      }
-      p {
-        margin: 0;
-        color: #c9d5e5;
-        line-height: 1.6;
-        font-size: 18px;
-        max-width: 58ch;
-      }
-      .card {
-        margin-top: 24px;
-        display: grid;
-        grid-template-columns: 1.2fr 0.8fr;
-        gap: 18px;
-        align-items: stretch;
-        padding: 18px;
-        border-radius: 28px;
-        border: 1px solid var(--line);
-        background: var(--panel);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
-        transform: translateY(0);
-        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(103, 195, 255, 0.36);
-        box-shadow: 0 28px 72px rgba(0, 0, 0, 0.42);
-      }
-      .tile {
-        display: block;
-        padding: 22px;
-        border-radius: 22px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: linear-gradient(180deg, rgba(103, 195, 255, 0.10), rgba(255, 154, 87, 0.06));
-        color: var(--text);
-        text-decoration: none;
-        min-height: 220px;
-        transition: transform 180ms ease, background 180ms ease, border-color 180ms ease;
-      }
-      .tile:hover {
-        transform: translateY(-2px);
-        border-color: rgba(103, 195, 255, 0.30);
-        background: linear-gradient(180deg, rgba(103, 195, 255, 0.15), rgba(255, 154, 87, 0.08));
-      }
-      .tile small {
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-      }
-      .tile h2 {
-        margin: 10px 0 10px;
-        font-size: 32px;
-      }
-      .tile p { font-size: 15px; }
-      .tile .launch {
-        display: inline-flex;
-        margin-top: 18px;
-        padding: 10px 14px;
-        border-radius: 999px;
-        background: rgba(103, 195, 255, 0.16);
-        color: #def1ff;
-        font-size: 13px;
-        font-weight: 700;
-      }
-      .meta {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      .stat {
-        padding: 16px;
-        border-radius: 18px;
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.06);
-      }
-      .stat span {
-        display: block;
-        color: var(--muted);
-        font-size: 12px;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-      }
-      .stat strong {
-        display: block;
-        margin-top: 8px;
-        font-size: 17px;
-      }
-      .footer {
-        margin-top: 18px;
-        color: var(--muted);
-        font-size: 13px;
-      }
-      @media (max-width: 760px) {
-        .card { grid-template-columns: 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <div class="eyebrow">games.atla.in</div>
-      <h1>One card. One game. One click to play.</h1>
-      <p>
-        This launcher starts with Glitch, a one-handed puzzle where one movement
-        rule always lies. Tap the card to launch the game.
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>games.atla.in</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design System Variables ── */
+    :root {
+      --font-retro:        'Press Start 2P', monospace;
+      --pixel-border:      4px solid;
+      --neon-glow:         0 0 10px;
+      --scanline-opacity:  0.05;
+
+      --color-neon-1:   #FF69B4;
+      --color-neon-2:   #CCFF00;
+      --color-purple:   #9B59B6;
+      --color-blue:     #00BFFF;
+      --color-bubblegum:#FF85A2;
+      --color-orange:   #FF6B35;
+      --color-green:    #00FF41;
+      --color-yellow:   #FFD700;
+
+      --bg:      #08060f;
+      --bg2:     #100d1c;
+      --bg3:     #16122a;
+      --surface: #1a1530;
+      --text:    #f0e8ff;
+      --muted:   #7a6e99;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100dvh;
+      font-family: var(--font-retro);
+      color: var(--text);
+      background:
+        linear-gradient(180deg, #100d1c 0%, #08060f 60%, #0c0618 100%);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Scanline overlay ── */
+    body::before {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,var(--scanline-opacity)) 2px,
+        rgba(0,0,0,var(--scanline-opacity)) 4px
+      );
+      animation: scanline 8s linear infinite;
+    }
+
+    @keyframes scanline {
+      0%   { background-position: 0 0; }
+      100% { background-position: 0 100px; }
+    }
+
+    /* ── CRT vignette ── */
+    body::after {
+      content: '';
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      z-index: 199;
+      box-shadow: inset 0 0 120px rgba(0,0,0,0.55);
+      border-radius: 4px;
+    }
+
+    /* ── Layout ── */
+    main {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: clamp(2rem, 5vw, 4rem) 1.5rem clamp(4rem, 8vw, 6rem);
+    }
+
+    /* ── Eyebrow ── */
+    .eyebrow {
+      font-size: 0.55rem;
+      letter-spacing: 0.25em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .eyebrow span {
+      color: var(--color-green);
+      text-shadow: var(--neon-glow) var(--color-green), 0 0 20px var(--color-green);
+      animation: blink 1.2s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* ── Hero ── */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: start;
+      margin-bottom: clamp(3rem, 6vw, 5rem);
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 4vw, 2.8rem);
+      line-height: 1.5;
+      letter-spacing: -0.01em;
+    }
+    h1 .line1 {
+      color: var(--color-neon-1);
+      text-shadow:
+        var(--neon-glow) var(--color-neon-1),
+        0 0 24px var(--color-neon-1),
+        0 0 40px rgba(255,105,180,0.3);
+      display: block;
+    }
+    h1 .line2 {
+      color: var(--color-neon-2);
+      text-shadow:
+        var(--neon-glow) var(--color-neon-2),
+        0 0 24px var(--color-neon-2),
+        0 0 40px rgba(204,255,0,0.25);
+      display: block;
+      margin-top: 0.6rem;
+    }
+
+    .hero-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .pixel-icon {
+      width: 64px;
+      height: 64px;
+      image-rendering: pixelated;
+    }
+    .insert-coin {
+      font-size: 0.35rem;
+      color: var(--color-yellow);
+      text-shadow: var(--neon-glow) var(--color-yellow);
+      letter-spacing: 0.15em;
+      animation: blink 0.9s step-end infinite;
+      white-space: nowrap;
+    }
+
+    /* ── Tagline ── */
+    .tagline {
+      margin-bottom: clamp(2.5rem, 5vw, 4rem);
+      max-width: 68ch;
+    }
+    .tagline p {
+      font-size: 0.55rem;
+      line-height: 2.2;
+      color: var(--color-blue);
+      text-shadow: var(--neon-glow) var(--color-blue);
+      margin-bottom: 1rem;
+    }
+    .tagline .contrib {
+      color: var(--muted);
+      text-shadow: none;
+      font-size: 0.5rem;
+    }
+    .tagline .contrib a {
+      color: var(--color-bubblegum);
+      text-shadow: var(--neon-glow) var(--color-bubblegum);
+      text-decoration: none;
+      border-bottom: 2px solid var(--color-bubblegum);
+    }
+    .tagline .contrib a:hover {
+      color: var(--color-neon-1);
+      text-shadow: var(--neon-glow) var(--color-neon-1);
+      border-color: var(--color-neon-1);
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-size: 0.5rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--color-purple), transparent);
+    }
+
+    /* ── Game grid ── */
+    .game-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.6fr;
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+
+    /* ── Game tile ── */
+    .tile {
+      display: flex;
+      flex-direction: column;
+      text-decoration: none;
+      color: var(--text);
+      padding: 1.75rem;
+      border-radius: 0.5rem;
+      border: var(--pixel-border) var(--color-neon-1);
+      background: var(--bg2);
+      position: relative;
+      overflow: hidden;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      /* CRT curve */
+      box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.4),
+        0 0 0 1px rgba(255,105,180,0.1),
+        0 8px 32px rgba(0,0,0,0.5);
+    }
+    .tile::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        135deg,
+        rgba(255,105,180,0.06) 0%,
+        transparent 60%
+      );
+      pointer-events: none;
+    }
+    .tile:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow:
+        inset 0 0 60px rgba(0,0,0,0.3),
+        0 0 24px rgba(255,105,180,0.35),
+        0 0 48px rgba(255,105,180,0.15),
+        0 12px 40px rgba(0,0,0,0.6);
+    }
+
+    .tile .t-tag {
+      font-size: 0.42rem;
+      letter-spacing: 0.18em;
+      color: var(--color-neon-1);
+      text-shadow: var(--neon-glow) var(--color-neon-1);
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .tile .t-name {
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      color: var(--color-neon-2);
+      text-shadow:
+        var(--neon-glow) var(--color-neon-2),
+        0 0 24px var(--color-neon-2);
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+    .tile .t-desc {
+      font-size: 0.5rem;
+      line-height: 2;
+      color: var(--muted);
+      flex: 1;
+      margin-bottom: 1.5rem;
+    }
+
+    .pixel-btn {
+      display: inline-block;
+      padding: 0.7rem 1.2rem;
+      font-family: var(--font-retro);
+      font-size: 0.5rem;
+      font-weight: 600;
+      color: var(--bg);
+      background: var(--color-neon-2);
+      border: var(--pixel-border) var(--color-neon-2);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      text-shadow: none;
+      transition: background 150ms, transform 80ms, box-shadow 150ms;
+      box-shadow:
+        4px 4px 0 rgba(0,0,0,0.6),
+        0 0 12px rgba(204,255,0,0.3);
+      image-rendering: pixelated;
+      align-self: flex-start;
+    }
+    .pixel-btn:hover {
+      background: #e5ff00;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.6), 0 0 20px rgba(204,255,0,0.5);
+      transform: scale(1.03);
+    }
+    .pixel-btn:active {
+      transform: translate(2px,2px) scale(0.99);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    }
+
+    /* ── Stat badges on tile ── */
+    .tile-stats {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+    .stat-badge {
+      font-size: 0.38rem;
+      letter-spacing: 0.1em;
+      padding: 3px 8px;
+      border: 2px solid var(--color-purple);
+      color: var(--color-purple);
+      border-radius: 0.25rem;
+      text-transform: uppercase;
+    }
+    .stat-badge.blue { border-color:var(--color-blue); color:var(--color-blue); }
+    .stat-badge.green{ border-color:var(--color-green); color:var(--color-green);
+      text-shadow: 0 0 6px var(--color-green); }
+
+    /* ── Locked / coming-soon tile ── */
+    .tile-locked {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 1.75rem 1.25rem;
+      border-radius: 0.5rem;
+      border: var(--pixel-border) var(--muted);
+      background: var(--bg2);
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.5);
+      opacity: 0.7;
+    }
+    .tile-locked::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.015) 0px,
+        rgba(255,255,255,0.015) 1px,
+        transparent 1px,
+        transparent 8px
+      );
+    }
+
+    .lock-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      filter: grayscale(1);
+      image-rendering: pixelated;
+      line-height: 1;
+    }
+    .lock-label {
+      font-size: 0.38rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .lock-title {
+      font-size: 0.65rem;
+      color: var(--color-orange);
+      text-shadow: var(--neon-glow) var(--color-orange);
+      margin-bottom: 0.5rem;
+      animation: blink 1.6s step-end infinite;
+    }
+    .lock-sub {
+      font-size: 0.38rem;
+      color: var(--muted);
+      line-height: 2;
+    }
+
+    /* ── AI strip ── */
+    .ai-strip {
+      margin-top: clamp(3rem, 6vw, 5rem);
+      padding: 1.5rem 1.75rem;
+      border-radius: 0.5rem;
+      border: var(--pixel-border) var(--color-purple);
+      background: linear-gradient(135deg, rgba(155,89,182,0.08) 0%, rgba(0,191,255,0.06) 100%);
+      box-shadow: inset 0 0 60px rgba(0,0,0,0.3), 0 0 20px rgba(155,89,182,0.15);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .ai-strip .ai-text {
+      font-size: 0.48rem;
+      line-height: 2.2;
+      color: var(--text);
+    }
+    .ai-strip .ai-text strong {
+      color: var(--color-purple);
+      text-shadow: var(--neon-glow) var(--color-purple);
+    }
+    .ai-strip .ai-text .sub {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.42rem;
+      color: var(--muted);
+    }
+    .pixel-btn-ghost {
+      display: inline-block;
+      padding: 0.65rem 1.1rem;
+      font-family: var(--font-retro);
+      font-size: 0.42rem;
+      font-weight: 600;
+      color: var(--color-purple);
+      background: transparent;
+      border: var(--pixel-border) var(--color-purple);
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: background 150ms, box-shadow 150ms, transform 80ms;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    }
+    .pixel-btn-ghost:hover {
+      background: rgba(155,89,182,0.15);
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5), 0 0 18px rgba(155,89,182,0.4);
+      transform: scale(1.03);
+    }
+    .pixel-btn-ghost:active { transform: translate(2px,2px); box-shadow:2px 2px 0 rgba(0,0,0,0.5); }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 3rem;
+      font-size: 0.38rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    footer a {
+      color: var(--color-blue);
+      text-decoration: none;
+      text-shadow: var(--neon-glow) var(--color-blue);
+    }
+
+    /* ── Pixel art SVG controller ── */
+    /* (drawn inline below) */
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .game-grid { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+      .hero-badge { flex-direction: row; align-items: center; }
+      .ai-strip { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+
+  <!-- eyebrow -->
+  <div class="eyebrow">games.atla.in &nbsp;<span>&#9646;</span> ONLINE</div>
+
+  <!-- hero -->
+  <div class="hero">
+    <div>
+      <h1>
+        <span class="line1">One game.</span>
+        <span class="line2">One click to play.</span>
+      </h1>
+    </div>
+    <div class="hero-badge">
+      <!-- pixel art gamepad SVG -->
+      <svg class="pixel-icon" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="image-rendering:pixelated">
+        <rect x="2" y="5" width="12" height="7" fill="#9B59B6"/>
+        <rect x="1" y="6" width="1" height="5" fill="#9B59B6"/>
+        <rect x="14" y="6" width="1" height="5" fill="#9B59B6"/>
+        <rect x="3" y="7" width="1" height="3" fill="#CCFF00"/>
+        <rect x="4" y="6" width="1" height="1" fill="#CCFF00"/>
+        <rect x="4" y="10" width="1" height="1" fill="#CCFF00"/>
+        <rect x="5" y="7" width="1" height="3" fill="#CCFF00"/>
+        <rect x="10" y="7" width="2" height="2" fill="#FF69B4"/>
+        <rect x="12" y="9" width="2" height="2" fill="#00BFFF"/>
+        <rect x="8" y="8" width="1" height="1" fill="#FFD700"/>
+        <rect x="7" y="12" width="2" height="1" fill="#FF69B4"/>
+        <rect x="6" y="5" width="4" height="2" fill="#7a6e99"/>
+        <rect x="6" y="13" width="1" height="1" fill="#7a6e99"/>
+        <rect x="9" y="13" width="1" height="1" fill="#7a6e99"/>
+      </svg>
+      <div class="insert-coin">INSERT COIN</div>
+    </div>
+  </div>
+
+  <!-- tagline -->
+  <div class="tagline">
+    <p>Building games with AI as co-pilot — one weird idea at a time.<br>
+    Every puzzle here started as a 3am prompt and ended up playable.</p>
+    <p class="contrib">
+      Got a game idea? Got code?&nbsp;
+      <a href="https://github.com/pranavatla/games.atla" target="_blank" rel="noopener">Open a PR or drop an issue</a>
+      &nbsp;&#x2014; the machine and I review everything.
+    </p>
+  </div>
+
+  <!-- game grid -->
+  <div class="section-label">Arcade</div>
+  <div class="game-grid">
+
+    <!-- Glitch tile -->
+    <a class="tile" href="/glitch/" aria-label="Play Glitch">
+      <div class="t-tag">&#9658; Now Playing</div>
+      <div class="t-name">Glitch</div>
+      <div class="tile-stats">
+        <span class="stat-badge blue">Web + Mobile</span>
+        <span class="stat-badge">Puzzle</span>
+        <span class="stat-badge green">Live</span>
+      </div>
+      <p class="t-desc">
+        A 4x4 logic grid where one movement rule always lies.<br>
+        Swipe to move. Catch the lie. Reach the goal.
       </p>
+      <span class="pixel-btn">PLAY NOW</span>
+    </a>
 
-      <section class="card" aria-label="Featured game">
-        <a class="tile" href="/glitch/">
-          <small>Featured Game</small>
-          <h2>Glitch</h2>
-          <p>A one-handed logic puzzle where one movement rule always lies.</p>
-          <span class="launch">Click to launch</span>
-        </a>
-        <aside class="meta">
-          <div class="stat"><span>Platform</span><strong>Web + mobile</strong></div>
-          <div class="stat"><span>Play style</span><strong>Short puzzle sessions</strong></div>
-          <div class="stat"><span>Status</span><strong>Prototype ready</strong></div>
-        </aside>
-      </section>
+    <!-- More incoming tile -->
+    <div class="tile-locked" aria-label="More games coming soon">
+      <div class="lock-icon">&#128274;</div>
+      <div class="lock-label">Next Drop</div>
+      <div class="lock-title">MORE INCOMING</div>
+      <p class="lock-sub">
+        The next game is being<br>
+        debugged with AI.<br>
+        Stay tuned.
+      </p>
+    </div>
 
-      <div class="footer">The rest of the games can be added as more cards later.</div>
-    </main>
-  </body>
+  </div>
+
+  <!-- AI strip -->
+  <div class="ai-strip">
+    <div class="ai-text">
+      <strong>Built with AI. Open to contributors.</strong>
+      <span class="sub">
+        This whole arcade &#x2014; design, code, game logic &#x2014; is human-directed, AI-accelerated.<br>
+        If you want to ship a game here, fork the repo and make something weird.
+      </span>
+    </div>
+    <a class="pixel-btn-ghost" href="https://github.com/pranavatla/games.atla" target="_blank" rel="noopener">
+      CONTRIBUTE
+    </a>
+  </div>
+
+  <!-- footer -->
+  <footer>
+    <span>games.atla.in &#x2014; <a href="https://atla.in">atla.in</a></span>
+    <span>CREDITS: 1 &nbsp;|&nbsp; PRANAV + AI</span>
+  </footer>
+
+</main>
+</body>
 </html>

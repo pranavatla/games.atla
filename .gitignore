@@ -1,0 +1,11 @@
+# Godot
+.godot/
+.export/
+*.import
+*.uid
+
+# OS
+.DS_Store
+
+# Claude worktrees
+.claude/worktrees/

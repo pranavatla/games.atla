@@ -187,7 +187,7 @@ func _direction_name(direction: Vector2i) -> String:
 
 func _finish_puzzle() -> void:
 	puzzle_complete = true
-	var caught_text := lie_caught ? "You caught the lie." : "You solved it without proving the lie."
+	var caught_text := "You caught the lie." if lie_caught else "You solved it without proving the lie."
 	status_label.text = "%s Moves: %d | Lie: %s" % [caught_text, moves, lie_type_name]
 	info_label.text = "Tap Restart or tap anywhere to restart."
 	lie_state_label.text = "Lie revealed: %s" % MOVE_RULES[lie_rule_index]

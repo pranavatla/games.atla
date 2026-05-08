@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <title>Glitch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design System ── */
+    :root {
+      --font-retro:     'Press Start 2P', monospace;
+      --pixel-border:   4px solid;
+
+      --color-neon-1:   #FF69B4;
+      --color-neon-2:   #CCFF00;
+      --color-purple:   #9B59B6;
+      --color-blue:     #00BFFF;
+      --color-orange:   #FF6B35;
+      --color-green:    #00FF41;
+      --color-yellow:   #FFD700;
+
+      --bg:      #08060f;
+      --bg2:     #100d1c;
+      --bg3:     #16122a;
+      --surface: #1a1530;
+      --text:    #f0e8ff;
+      --muted:   #6a5f88;
+
+      --player-bg:   #00BFFF;
+      --player-glow: rgba(0,191,255,0.5);
+      --goal-bg:     #0d1f10;
+      --goal-color:  #00FF41;
+      --glitch-bg:   #FF6B35;
+      --glitch-glow: rgba(255,107,53,0.55);
+      --win-color:   #00FF41;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+    body{
+      min-height:100dvh;
+      font-family:var(--font-retro);
+      color:var(--text);
+      background:linear-gradient(180deg,#100d1c 0%,#08060f 60%,#0c0618 100%);
+      display:flex;align-items:flex-start;justify-content:center;
+      padding:20px 16px 40px;
+      overflow-x:hidden;
+      position:relative;
+    }
+
+    /* ── Global scanline ── */
+    body::before{
+      content:'';pointer-events:none;
+      position:fixed;inset:0;z-index:200;
+      background:repeating-linear-gradient(
+        0deg,transparent,transparent 2px,
+        rgba(0,0,0,0.05) 2px,rgba(0,0,0,0.05) 4px
+      );
+      animation:scanline 8s linear infinite;
+    }
+    @keyframes scanline{
+      0%{background-position:0 0}
+      100%{background-position:0 100px}
+    }
+
+    /* ── CRT vignette ── */
+    body::after{
+      content:'';pointer-events:none;
+      position:fixed;inset:0;z-index:199;
+      box-shadow:inset 0 0 100px rgba(0,0,0,0.5);
+    }
+
+    /* ── Game container ── */
+    .game{
+      width:100%;max-width:400px;
+      display:flex;flex-direction:column;gap:12px;
+      user-select:none;-webkit-user-select:none;
+      position:relative;z-index:1;
+    }
+
+    /* ── Back link ── */
+    .back{
+      font-size:0.4rem;letter-spacing:0.15em;
+      color:var(--muted);text-decoration:none;
+      margin-bottom:4px;display:inline-block;
+    }
+    .back:hover{color:var(--color-blue);text-shadow:0 0 8px var(--color-blue)}
+
+    /* ── Header ── */
+    .hdr{text-align:center;padding:8px 0 4px}
+    .title{
+      font-size:clamp(1.8rem,8vw,2.8rem);
+      line-height:1;
+      color:var(--color-neon-1);
+      text-shadow:
+        0 0 10px var(--color-neon-1),
+        0 0 24px var(--color-neon-1),
+        0 0 48px rgba(255,105,180,0.3);
+    }
+    .sub{
+      margin-top:10px;
+      font-size:0.4rem;line-height:2;
+      color:var(--muted);letter-spacing:0.08em;
+    }
+
+    /* ── Grid wrapper ── */
+    .grid-wrap{position:relative}
+    .grid{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:5px;
+      padding:10px;
+      background:var(--bg2);
+      border:var(--pixel-border) var(--color-purple);
+      box-shadow:
+        inset 0 0 40px rgba(0,0,0,0.5),
+        0 0 20px rgba(155,89,182,0.2),
+        0 0 40px rgba(155,89,182,0.08);
+      touch-action:none;
+    }
+    .cell{
+      aspect-ratio:1;
+      background:var(--bg3);
+      border:2px solid rgba(155,89,182,0.2);
+      position:relative;
+      image-rendering:pixelated;
+      transition:background 80ms,box-shadow 80ms,border-color 80ms,transform 80ms;
+    }
+    .cell.goal{
+      background:var(--goal-bg);
+      border-color:rgba(0,255,65,0.25);
+    }
+    .cell.goal::after{
+      content:'';position:absolute;inset:28%;
+      border:2px solid var(--goal-color);
+      box-shadow:0 0 6px var(--goal-color),inset 0 0 4px rgba(0,255,65,0.2);
+    }
+    .cell.player{
+      background:var(--player-bg);
+      border-color:rgba(180,235,255,0.7);
+      box-shadow:
+        0 0 12px var(--player-glow),
+        0 0 24px rgba(0,191,255,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.3);
+      transform:scale(0.88);
+    }
+    .cell.player.glitch{
+      background:var(--glitch-bg);
+      border-color:rgba(255,200,100,0.8);
+      box-shadow:
+        0 0 16px var(--glitch-glow),
+        0 0 32px rgba(255,107,53,0.25);
+    }
+    .cell.player-on-goal{
+      background:var(--win-color);
+      border-color:rgba(150,255,150,0.7);
+      box-shadow:
+        0 0 16px rgba(0,255,65,0.6),
+        0 0 32px rgba(0,255,65,0.2);
+      transform:scale(0.88);
+    }
+
+    /* glitch scanline on grid */
+    .scan{
+      position:absolute;inset:0;
+      pointer-events:none;opacity:0;
+      background:repeating-linear-gradient(
+        0deg,transparent,transparent 3px,
+        rgba(255,107,53,0.06) 3px,rgba(255,107,53,0.06) 4px
+      );
+      border:var(--pixel-border) transparent;
+      transition:opacity 60ms;
+    }
+    .scan.on{opacity:1}
+
+    /* ── Panel base ── */
+    .panel{
+      background:var(--bg2);
+      border:var(--pixel-border) var(--color-purple);
+      box-shadow:inset 0 0 30px rgba(0,0,0,0.4);
+      padding:12px 14px;
+    }
+
+    /* ── Rules ── */
+    .rules-lbl{
+      font-size:0.38rem;font-weight:700;letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:var(--color-purple);
+      text-shadow:0 0 8px var(--color-purple);
+      margin-bottom:10px;
+    }
+    .rule{
+      display:flex;align-items:center;gap:10px;
+      padding:6px 0;font-size:0.42rem;
+      border-bottom:1px solid rgba(155,89,182,0.18);
+    }
+    .rule:last-child{border-bottom:none}
+    .r-icon{
+      font-size:0.7rem;width:22px;text-align:center;
+      color:var(--color-blue);
+      text-shadow:0 0 8px var(--color-blue);
+      flex-shrink:0;
+    }
+    .r-text{flex:1;color:var(--text);line-height:1.8}
+    .badge{
+      font-size:0.32rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+      padding:3px 6px;
+      border:2px solid var(--color-orange);
+      color:var(--color-orange);
+      text-shadow:0 0 6px var(--color-orange);
+      box-shadow:0 0 8px rgba(255,107,53,0.2);
+    }
+
+    /* ── Stats ── */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .stat{
+      background:var(--bg2);
+      border:var(--pixel-border) var(--color-purple);
+      box-shadow:inset 0 0 20px rgba(0,0,0,0.4);
+      padding:10px 6px;text-align:center;
+    }
+    .s-lbl{
+      font-size:0.32rem;font-weight:700;letter-spacing:0.13em;
+      text-transform:uppercase;
+      color:var(--muted);margin-bottom:5px;
+    }
+    .s-val{
+      font-size:1.1rem;
+      color:var(--color-neon-2);
+      text-shadow:0 0 8px var(--color-neon-2),0 0 16px rgba(204,255,0,0.2);
+    }
+    .s-val.caught{
+      color:var(--color-orange);
+      text-shadow:0 0 8px var(--color-orange);
+    }
+    .s-val.goal-v{
+      font-size:0.65rem;
+      color:var(--color-blue);
+      text-shadow:0 0 8px var(--color-blue);
+    }
+
+    /* ── Log ── */
+    .log{
+      background:var(--bg2);
+      border:var(--pixel-border) var(--color-purple);
+      box-shadow:inset 0 0 20px rgba(0,0,0,0.4);
+      padding:10px 12px;
+      font-size:0.35rem;line-height:2.4;
+      color:var(--muted);min-height:34px;
+    }
+    .le{color:var(--text)}
+    .le.lie-move{
+      color:var(--color-orange);
+      text-shadow:0 0 6px var(--color-orange);
+    }
+
+    /* ── Win banner ── */
+    .win{
+      display:none;
+      background:var(--bg2);
+      border:var(--pixel-border) var(--win-color);
+      box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.4),
+        0 0 20px rgba(0,255,65,0.2);
+      padding:16px;text-align:center;
+    }
+    .win.show{display:block}
+    .win-title{
+      font-size:0.65rem;line-height:2;margin-bottom:8px;
+    }
+    .win-title.caught-it{
+      color:var(--color-orange);
+      text-shadow:0 0 10px var(--color-orange),0 0 20px rgba(255,107,53,0.3);
+    }
+    .win-title.solved{
+      color:var(--win-color);
+      text-shadow:0 0 10px var(--win-color),0 0 20px rgba(0,255,65,0.3);
+    }
+    .win-detail{
+      font-size:0.35rem;line-height:2.4;
+      color:var(--muted);white-space:pre-line;
+    }
+
+    /* ── Restart button ── */
+    .btn{
+      width:100%;padding:14px;
+      font-family:var(--font-retro);
+      font-size:0.5rem;
+      letter-spacing:0.08em;
+      color:var(--bg);
+      background:var(--color-neon-2);
+      border:var(--pixel-border) var(--color-neon-2);
+      cursor:pointer;
+      box-shadow:
+        4px 4px 0 rgba(0,0,0,0.6),
+        0 0 12px rgba(204,255,0,0.3);
+      transition:background 120ms,box-shadow 120ms,transform 80ms;
+      image-rendering:pixelated;
+    }
+    .btn:hover{
+      background:#dbff00;
+      box-shadow:4px 4px 0 rgba(0,0,0,0.6),0 0 24px rgba(204,255,0,0.5);
+    }
+    .btn:active{
+      transform:translate(2px,2px);
+      box-shadow:2px 2px 0 rgba(0,0,0,0.6);
+    }
+
+    /* ── Hint ── */
+    .hint{
+      text-align:center;font-size:0.35rem;
+      color:var(--muted);letter-spacing:0.1em;
+    }
+  </style>
+</head>
+<body>
+<div class="game">
+  <a class="back" href="/">&lt; games.atla.in</a>
+
+  <div class="hdr">
+    <div class="title">GLITCH</div>
+    <div class="sub">SWIPE TO MOVE &mdash; ONE RULE ALWAYS LIES</div>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+    <div class="scan" id="scan"></div>
+  </div>
+
+  <div class="panel rules" id="rules"></div>
+
+  <div class="stats">
+    <div class="stat"><div class="s-lbl">Moves</div><div class="s-val" id="sMoves">0</div></div>
+    <div class="stat"><div class="s-lbl">Lie caught</div><div class="s-val" id="sLie">&mdash;</div></div>
+    <div class="stat"><div class="s-lbl">Goal</div><div class="s-val goal-v" id="sGoal">4,4</div></div>
+  </div>
+
+  <div class="log" id="log">&mdash; no moves yet &mdash;</div>
+
+  <div class="win" id="winBanner">
+    <div class="win-title" id="winTitle"></div>
+    <div class="win-detail" id="winDetail"></div>
+  </div>
+
+  <button class="btn" id="restartBtn">&#x21BB; NEW PUZZLE</button>
+  <div class="hint">ARROW KEYS &bull; WASD &bull; OR SWIPE</div>
+</div>
+
+<script>
+const GS = 4;
+const SWIPE_MIN = 28;
+
+// 0=Up 1=Down 2=Left 3=Right
+const DIRS = [
+  { dx: 0, dy:-1, label:'Up',    icon:'&#8593;', desc:'Swipe up moves up'     },
+  { dx: 0, dy: 1, label:'Down',  icon:'&#8595;', desc:'Swipe down moves down'  },
+  { dx:-1, dy: 0, label:'Left',  icon:'&#8592;', desc:'Swipe left moves left'  },
+  { dx: 1, dy: 0, label:'Right', icon:'&#8594;', desc:'Swipe right moves right' },
+];
+
+let S = {};
+let flashTimer = null;
+
+function rnd(n){ return Math.floor(Math.random()*n); }
+
+function init(){
+  if(flashTimer){ clearTimeout(flashTimer); flashTimer=null; }
+  S = {
+    px:0, py:0,
+    gx:GS-1, gy:GS-1,
+    lie: rnd(4),
+    moves: 0,
+    lieCaught: false,
+    done: false,
+    log: [],
+    flash: false,
+  };
+  render();
+}
+
+function dirIdx(dx,dy){
+  if(dy<0) return 0;
+  if(dy>0) return 1;
+  if(dx<0) return 2;
+  return 3;
+}
+
+function move(dx,dy){
+  if(S.done) return;
+  const idx = dirIdx(dx,dy);
+  const isLie = idx === S.lie;
+  const adx = isLie ? -dx : dx;
+  const ady = isLie ? -dy : dy;
+  const nx = S.px+adx, ny = S.py+ady;
+  const inBounds = nx>=0 && nx<GS && ny>=0 && ny<GS;
+
+  S.moves++;
+
+  if(inBounds){
+    S.px = nx; S.py = ny;
+    S.log.push({ text:`${DIRS[idx].label} -> (${nx+1},${ny+1})`, lie:isLie });
+    if(isLie) S.lieCaught = true;
+    if(nx===S.gx && ny===S.gy) S.done = true;
+  } else {
+    S.log.push({ text:`${DIRS[idx].label} -> BLOCKED`, lie:false });
+  }
+  if(S.log.length > 4) S.log.shift();
+
+  if(isLie && inBounds){
+    S.flash = true;
+    if(flashTimer) clearTimeout(flashTimer);
+    flashTimer = setTimeout(()=>{ S.flash=false; renderBoard(); renderScan(); }, 300);
+  }
+
+  render();
+}
+
+function renderBoard(){
+  const cells = document.querySelectorAll('.cell');
+  cells.forEach((c,i)=>{
+    const cx=i%GS, cy=Math.floor(i/GS);
+    const isP = cx===S.px && cy===S.py;
+    const isG = cx===S.gx && cy===S.gy;
+    c.className = 'cell';
+    if(isP && isG)       c.classList.add('player-on-goal');
+    else if(isP){ c.classList.add('player'); if(S.flash) c.classList.add('glitch'); }
+    else if(isG)         c.classList.add('goal');
+  });
+}
+
+function renderScan(){
+  document.getElementById('scan').classList.toggle('on', S.flash);
+}
+
+function renderRules(){
+  const el = document.getElementById('rules');
+  let h = '<div class="rules-lbl">// Movement Rules</div>';
+  DIRS.forEach((d,i)=>{
+    const showLie = S.done && i===S.lie;
+    h += `<div class="rule">
+      <span class="r-icon">${d.icon}</span>
+      <span class="r-text">${d.desc}</span>
+      ${showLie ? '<span class="badge">&#x26A1; LIES</span>' : ''}
+    </div>`;
+  });
+  el.innerHTML = h;
+}
+
+function renderStats(){
+  document.getElementById('sMoves').textContent = S.moves;
+  const lieEl = document.getElementById('sLie');
+  if(!S.moves){ lieEl.innerHTML='&mdash;'; lieEl.className='s-val'; }
+  else { lieEl.textContent = S.lieCaught?'YES!':'NO'; lieEl.className='s-val'+(S.lieCaught?' caught':''); }
+  document.getElementById('sGoal').textContent = `${S.gx+1},${S.gy+1}`;
+}
+
+function renderLog(){
+  const el = document.getElementById('log');
+  if(!S.log.length){ el.innerHTML='&mdash; no moves yet &mdash;'; return; }
+  el.innerHTML = S.log
+    .map(e=>`<span class="le${e.lie?' lie-move':''}">${e.text}</span>`)
+    .join('&nbsp;&nbsp;');
+}
+
+function renderWin(){
+  const banner = document.getElementById('winBanner');
+  if(!S.done){ banner.classList.remove('show'); return; }
+  banner.classList.add('show');
+  const lie = DIRS[S.lie].label.toUpperCase();
+  const t = document.getElementById('winTitle');
+  const d = document.getElementById('winDetail');
+  if(S.lieCaught){
+    t.innerHTML = '&#x26A1; YOU CAUGHT THE LIE!';
+    t.className = 'win-title caught-it';
+    d.textContent = `"${lie}" was the lying rule.\nSolved in ${S.moves} moves.`;
+  } else {
+    t.innerHTML = '&#x2713; PUZZLE SOLVED';
+    t.className = 'win-title solved';
+    d.textContent = `Goal reached in ${S.moves} moves.\nBut the lie was never triggered.\n"${lie}" was the lying rule.\nCan you catch it next time?`;
+  }
+}
+
+function render(){
+  renderBoard(); renderScan(); renderRules();
+  renderStats(); renderLog();  renderWin();
+}
+
+/* ── Input ── */
+let drag = null;
+
+document.addEventListener('touchstart', e=>{
+  if(S.done){ init(); return; }
+  drag = { x:e.touches[0].clientX, y:e.touches[0].clientY };
+},{ passive:true });
+
+document.addEventListener('touchend', e=>{
+  if(!drag) return;
+  swipe(e.changedTouches[0].clientX-drag.x, e.changedTouches[0].clientY-drag.y);
+  drag = null;
+},{ passive:true });
+
+document.addEventListener('mousedown', e=>{
+  if(S.done){ init(); return; }
+  drag = { x:e.clientX, y:e.clientY };
+});
+
+document.addEventListener('mouseup', e=>{
+  if(!drag) return;
+  swipe(e.clientX-drag.x, e.clientY-drag.y);
+  drag = null;
+});
+
+function swipe(dx,dy){
+  if(Math.hypot(dx,dy) < SWIPE_MIN) return;
+  Math.abs(dx)>Math.abs(dy) ? move(dx>0?1:-1, 0) : move(0, dy>0?1:-1);
+}
+
+document.addEventListener('keydown', e=>{
+  if(S.done){ if(e.key==='Enter'||e.key.toLowerCase()==='r') init(); return; }
+  switch(e.key){
+    case 'ArrowUp':    case 'w': case 'W': e.preventDefault(); move(0,-1); break;
+    case 'ArrowDown':  case 's': case 'S': e.preventDefault(); move(0, 1); break;
+    case 'ArrowLeft':  case 'a': case 'A': e.preventDefault(); move(-1,0); break;
+    case 'ArrowRight': case 'd': case 'D': e.preventDefault(); move( 1,0); break;
+  }
+});
+
+document.getElementById('restartBtn').addEventListener('click', e=>{
+  e.stopPropagation(); init();
+});
+
+/* ── Build grid DOM ── */
+const grid = document.getElementById('grid');
+for(let i=0;i<GS*GS;i++){
+  const c = document.createElement('div');
+  c.className = 'cell';
+  grid.appendChild(c);
+}
+
+init();
+</script>
+</body>
+</html>

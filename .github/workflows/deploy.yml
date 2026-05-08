@@ -1,0 +1,44 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy launcher (root index)
+        run: |
+          aws s3 cp deploy/index.html s3://${{ secrets.S3_BUCKET }}/index.html \
+            --content-type "text/html" \
+            --cache-control "public, max-age=60"
+
+      - name: Deploy Glitch game
+        run: |
+          aws s3 sync deploy/web/ s3://${{ secrets.S3_BUCKET }}/glitch/ \
+            --delete \
+            --content-type "text/html" \
+            --cache-control "public, max-age=60"
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DIST_ID }} \
+            --paths "/*"
+
+      - name: Done
+        run: echo "Deployed to https://games.atla.in"
