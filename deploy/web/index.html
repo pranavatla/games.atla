@@ -311,6 +311,52 @@
       text-align:center;font-size:0.35rem;
       color:var(--muted);letter-spacing:0.1em;
     }
+
+    /* ── How to play ── */
+    .htp{
+      background:var(--bg2);
+      border:var(--pixel-border) var(--color-yellow);
+      box-shadow:inset 0 0 30px rgba(0,0,0,0.4),0 0 16px rgba(255,215,0,0.08);
+      padding:14px;
+    }
+    .htp-lbl{
+      font-size:0.38rem;font-weight:700;letter-spacing:0.18em;
+      text-transform:uppercase;
+      color:var(--color-yellow);
+      text-shadow:0 0 8px var(--color-yellow);
+      margin-bottom:12px;
+    }
+    .htp-step{
+      display:flex;align-items:flex-start;gap:10px;
+      padding:7px 0;
+      border-bottom:1px solid rgba(255,215,0,0.1);
+      font-size:0.38rem;line-height:2;
+    }
+    .htp-step:last-child{border-bottom:none}
+    .htp-num{
+      flex-shrink:0;width:22px;height:22px;
+      display:flex;align-items:center;justify-content:center;
+      background:var(--color-yellow);color:var(--bg);
+      font-size:0.4rem;font-weight:700;
+    }
+    .htp-text{color:var(--text)}
+    .htp-text em{
+      font-style:normal;
+      color:var(--color-orange);
+      text-shadow:0 0 6px var(--color-orange);
+    }
+    .htp-text b{
+      color:var(--color-neon-2);
+      text-shadow:0 0 6px var(--color-neon-2);
+    }
+    .htp-text .blu{
+      color:var(--color-blue);
+      text-shadow:0 0 6px var(--color-blue);
+    }
+    .htp-text .grn{
+      color:var(--color-green);
+      text-shadow:0 0 6px var(--color-green);
+    }
   </style>
 </head>
 <body>
@@ -320,6 +366,36 @@
   <div class="hdr">
     <div class="title">GLITCH</div>
     <div class="sub">SWIPE TO MOVE &mdash; ONE RULE ALWAYS LIES</div>
+  </div>
+
+  <!-- How to play -->
+  <div class="htp">
+    <div class="htp-lbl">&#x2605; How to Play</div>
+
+    <div class="htp-step">
+      <div class="htp-num">1</div>
+      <div class="htp-text">You are the <span class="blu">&#x25A0; blue square</span>.<br>Move it to the <span class="grn">&#x25A0; green target</span> in the corner.</div>
+    </div>
+
+    <div class="htp-step">
+      <div class="htp-num">2</div>
+      <div class="htp-text"><b>Swipe</b> on screen or use <b>arrow keys</b> to move up, down, left and right.</div>
+    </div>
+
+    <div class="htp-step">
+      <div class="htp-num">3</div>
+      <div class="htp-text">One move direction is a <em>liar</em>.<br>It secretly moves you the <em>WRONG way</em>!</div>
+    </div>
+
+    <div class="htp-step">
+      <div class="htp-num">4</div>
+      <div class="htp-text">When the square flashes <em>&#x25A0; orange</em> — that swipe just lied to you. You caught it!</div>
+    </div>
+
+    <div class="htp-step">
+      <div class="htp-num">5</div>
+      <div class="htp-text">Reach the <span class="grn">green target</span> to win.<br>Catch the liar on the way = <b>FULL CLEAR!</b></div>
+    </div>
   </div>
 
   <div class="grid-wrap">
