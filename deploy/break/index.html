@@ -69,6 +69,16 @@
     .htp-text b{ color:var(--color-neon-2); text-shadow:0 0 6px var(--color-neon-2); }
     .htp-text em{ font-style:normal; color:var(--color-orange); text-shadow:0 0 6px var(--color-orange); }
   </style>
+  <!-- CloudWatch RUM: page-load timing, web vitals and browser errors from real visitors, shown on
+       obs.atla.in. The app monitor ID is public by design: the monitor accepts events only from games.atla.in. -->
+  <script>
+    (function () {
+      if (location.hostname !== "games.atla.in") return;
+      (function (n, i, v, r, s, c, x, z) { x = window.AwsRumClient = { q: [], n: n, i: i, v: v, r: r, c: c }; window[n] = function (c, p) { x.q.push({ c: c, p: p }); }; z = document.createElement("script"); z.async = true; z.src = s; document.head.insertBefore(z, document.head.getElementsByTagName("script")[0]); })(
+        "cwr", "78b57146-c98f-4efd-a05e-ab907e062161", "1.0.0", "us-east-1", "https://client.rum.us-east-1.amazonaws.com/1.x/cwr.js",
+        { sessionSampleRate: 1, endpoint: "https://dataplane.rum.us-east-1.amazonaws.com", telemetries: ["performance", "errors", "http"], allowCookies: false, enableXRay: false, signing: false });
+    })();
+  </script>
 </head>
 <body>
 
